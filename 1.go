@@ -49,6 +49,7 @@ func (c *ClientReq)Get()( string, error)  {
 	c.IsRequstbody=false
     return c.request()
 }
+
 func (c *ClientReq)Post()( string, error)   {
 	c.method=method_POST
 	c.IsRequstbody=false
@@ -143,6 +144,7 @@ func (c *ClientReq)request()( string, error) {
 
 }
 
+//post "k=v&k2=v2"  postbody {"k":"v","k2":"v2"}
 func getQueryStr(datas map[string]interface{}) string  {
 	if len(datas) ==0 {
 		return  ""
