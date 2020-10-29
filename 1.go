@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"time"
 )
 
 var(
@@ -14,69 +15,119 @@ var(
 	method_PUT="PUT"
 	method_DELETE="DELETE"
 )
-
-func Get(url string)( string, error)  {
-    return request(method_GET,url,nil,nil,false)
-}
-func Post(url string,header map[string]string,data map[string]interface{})( string, error)   {
-	return request(method_POST,url,header,data,false)
-}
-
-func PostBody(url string,header map[string]string,data map[string]interface{})(string,error)  {
-	return request(method_POST,url,header,data,true)
+type ClientReq struct {
+	 timeOut  time.Duration //默认50秒的超时时间
+	 method string
+	 Data map[string]interface{}     //请求数据体
+	 Headers map[string]interface{}  //header数据
+	 Url string         //请求url
+	 IsRequstbody bool  //是否是requestBody请求
 }
 
-func Put(url string,header map[string]string,data map[string]interface{})( string, error)   {
-	return request(method_PUT,url,header,data,false)
+type OpFunc  func(c *ClientReq)
+
+func WithTimeOut(t int64) OpFunc  {
+	return func(c *ClientReq) {
+		c.timeOut=time.Duration(t)*time.Second
+	}
 }
 
-func PutBody(url string,header map[string]string,data map[string]interface{})(string,error)  {
-	return request(method_PUT,url,header,data,true)
+//初始化
+func NewClient(ops...OpFunc) *ClientReq{
+	client:=  &ClientReq{Data:make(map[string]interface{}),Headers:make(map[string]interface{})}
+	client.timeOut=50*time.Second
+	for _,op:=range ops{
+		op(client)
+	}
+	return client
 }
 
-func Del(url string,header map[string]string,data map[string]interface{})( string, error)   {
-	return request(method_DELETE,url,header,data,false)
+func (c *ClientReq)Get()( string, error)  {
+	c.method=method_GET
+	c.Data=nil
+	c.Headers=nil
+	c.IsRequstbody=false
+    return c.request()
+}
+func (c *ClientReq)Post()( string, error)   {
+	c.method=method_POST
+	c.IsRequstbody=false
+	return c.request()
 }
 
-func DelBody(url string,header map[string]string,data map[string]interface{})(string,error)  {
-	return request(method_DELETE,url,header,data,true)
+func (c *ClientReq)PostForBody()(string,error)  {
+	c.method=method_POST
+	c.IsRequstbody=true
+	return c.request()
 }
 
-func request(method,url string,headers map[string]string,data map[string]interface{},isrequstbody bool) ( string, error) {
+func (c *ClientReq)Put()( string, error)   {
+	c.method=method_POST
+	c.IsRequstbody=false
+	return c.request()
+}
+
+func (c *ClientReq)PutForBody()(string,error)  {
+	c.method=method_PUT
+	c.IsRequstbody=true
+	return c.request()
+}
+
+func (c *ClientReq)Del()( string, error)   {
+	c.method=method_DELETE
+	c.IsRequstbody=false
+	return c.request()
+}
+
+func (c *ClientReq)DelForBody()(string,error)  {
+	c.method=method_DELETE
+	c.IsRequstbody=true
+	return c.request()
+}
+
+func (c *ClientReq)request()( string, error) {
+
+	if len(c.Url) == 0 {
+		return "",fmt.Errorf("url没有传")
+	}
+
 	 var body *bytes.Reader
-	if isrequstbody {
-		if len(data)>0 {
-			marshal, _ := json.Marshal(data)
+	if c.IsRequstbody {
+		if len(c.Data)>0 {
+			marshal, _ := json.Marshal(c.Data)
 			body=bytes.NewReader(marshal)
 		}else{
 			body=new(bytes.Reader)
 		}
 	}else{
-		if len(data)>0 {
-			body=bytes.NewReader([]byte(getQueryStr(data)))
+		if len(c.Data)>0 {
+			body=bytes.NewReader([]byte(getQueryStr(c.Data)))
 		}else{
 			body=new(bytes.Reader)
 		}
 	}
 
-		req, e := http.NewRequest(method, url, body)
+		req, e := http.NewRequest(c.method, c.Url, body)
 		if e!=nil {
 			return "",e
 		}
 
-		for k,v:=range headers{
-			req.Header.Set(k,v)
-		}
 
-	if len(data)>0 {
-		if isrequstbody {
+
+	if len(c.Data)>0 {
+		if c.IsRequstbody {
 			req.Header.Set("Content-Type","application/json")
 		}else{
 			req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 		}
 	}
+	for k,v:=range c.Headers{
+		req.Header.Set(k,fmt.Sprintf("%v",v))
+	}
 
 		client:=&http.Client{}
+		fmt.Println("超时时间",c.timeOut)
+		client.Timeout=c.timeOut
 		response, e := client.Do(req)
 		if e!=nil {
 			return  "",e
