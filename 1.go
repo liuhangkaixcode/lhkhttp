@@ -11,7 +11,8 @@ import (
 var(
 	method_GET="GET"
 	method_POST="POST"
-
+	method_PUT="PUT"
+	method_DELETE="DELETE"
 )
 
 func Get(url string)( string, error)  {
@@ -23,6 +24,22 @@ func Post(url string,header map[string]string,data map[string]interface{})( stri
 
 func PostBody(url string,header map[string]string,data map[string]interface{})(string,error)  {
 	return request(method_POST,url,header,data,true)
+}
+
+func Put(url string,header map[string]string,data map[string]interface{})( string, error)   {
+	return request(method_PUT,url,header,data,false)
+}
+
+func PutBody(url string,header map[string]string,data map[string]interface{})(string,error)  {
+	return request(method_PUT,url,header,data,true)
+}
+
+func Del(url string,header map[string]string,data map[string]interface{})( string, error)   {
+	return request(method_DELETE,url,header,data,false)
+}
+
+func DelBody(url string,header map[string]string,data map[string]interface{})(string,error)  {
+	return request(method_DELETE,url,header,data,true)
 }
 
 func request(method,url string,headers map[string]string,data map[string]interface{},isrequstbody bool) ( string, error) {
