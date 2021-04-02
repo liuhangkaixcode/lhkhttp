@@ -1,6 +1,7 @@
 package lhkhttp
 
 import (
+	"encoding/json"
 	"fmt"
 	"testing"
 )
@@ -12,62 +13,101 @@ func TestQueStr(t *testing.T)  {
 	t1["age"]=true
 	t1["time"]="2012-12"
 	fmt.Println(getQueryStr(t1))
-
 	fmt.Println(getQueryStr(map[string]interface{}{}))
-
 	fmt.Println(getQueryStr(map[string]interface{}{"x":"y"}))
 }
 
-//get请求
+//普通get请求
 func TestGet(t *testing.T) {
-
+	/*第一种方式
+	urlstring:="http://ip:8787/get1?type=get&name=玩笑&score=刘寒假"
+	fmt.Println(urlstring)
 	c:=NewClient()
-	c.Url="http://ip:8787?type=get&name=cccccccccccccccc&score=刘寒假"
-	s, e :=c.Get()
+	s, e :=c.Get(urlstring)
 	fmt.Print(s,e)
-	//{"type":"get","name":"cccccccccccccccc","score":"\u5218\u5bd2\u5047"}
+	*/
+    //第二种方式
+	/*
+	c:=NewClient(WithHost("http://ip:8787"),WithTimeOut(15))
+	data:=make(map[string]interface{})
+	data["type"]="get"
+	data["name"]="张三"
+	data["score"]=140.2
+	urlstring, err := MapChangeToQueryUrl("/get1", data)
+	fmt.Println(urlstring,err)
+	result, err := c.Get(urlstring)
+	fmt.Println(result,err)
+  */
 }
-//POST form-data请求
+//普通的POST 表单提交请求（application/x-www-form-urlencoded）
 func TestPost(t *testing.T) {
-	c:=NewClient(WithTimeOut(16))
-	c.Url="http://ip:8787?type=post"
-	//请求数据体
-	c.Data["name"]="刘xxx"
-	c.Data["sex"]="cc"
-	c.Data["sub"]="xxxxxxxxxxxxxxxx"
-	s,e:=c.Post()
-	fmt.Print(s,e)
-	//{"name":"\u5218xxx","sex":"cc","sub":"xxxxxxxxxxxxxxxx"}
+	//第一种
+	//c:=NewClient(WithTimeOut(16),WithHost("http://ip:8787"))
+	//datas:=map[string]interface{}{
+	//	"name":"李四",
+	//	"wangwu":"zhangsan",
+	//	"score":100,
+	//	"height":109.2,
+	//}
+	//headers:=map[string]interface{}{
+	//	"Secerct":"xxxxwang==",
+	//}
+	//res, err := c.Post("/post1", datas, headers)
+	//fmt.Println(res,err)
+
+    //第二种
+	c:=NewClient(WithTimeOut(16),WithHost("http://ip:8787"))
+	res, err := c.Post("/post3", nil, nil)
+	fmt.Println(res,err)
 }
-
-//post requestbody
+//
+//post请求是 body提 （application/json）
 func TestPostBody(t *testing.T) {
-	c:=NewClient(WithTimeOut(26))
-	c.Url="http://ip:8787?type=postbody"
-	c.Data["name"]="刘xxx"
-	c.Data["sex"]="cc"
-	c.Data["sub"]=map[string]interface{}{"age":10,"sex":"nan","height":172}
-	s,e:=c.PostForBody()
-	fmt.Print(s,e)
+	c:=NewClient(WithTimeOut(17),WithHost("http://ip:8787"))
+	datas:=map[string]interface{}{
+		"name":"李四",
+		"wangwu":"zhangsan",
+		"score":100,
+		"height":109.2,
+	}
+	headers:=map[string]interface{}{
+		"Secerctbody":"xxxxwang==",
+	}
+	res, err := c.PostForBody("/post2", datas, headers)
+	fmt.Println(res,err)
 
-	//{"name":"刘xxx","sex":"cc","sub":{"age":10,"height":172,"sex":"nan"}}
+	var r map[string]interface{}
+	json.Unmarshal([]byte(res),&r)
+	fmt.Println(r["height"],r["name"])
 
 }
 //RPCX框架 service http请求
 func TestRpcXGateway(t *testing.T)  {
-	c:=NewClient(WithTimeOut(5))
-	c.Url="http://ip:8972"
-    //请求体
-	c.Headers["Content-Type"]="application/rpcx"
-	c.Headers["X-RPCX-SerializeType"]=1
-	c.Headers["X-RPCX-ServicePath"]="service_name_01"
-	c.Headers["X-RPCX-ServiceMethod"]="Add"
-	//请求数据体
-	c.Data["Name"]="xxxxxxxxxxxxx--"
-	s,e:=c.PostForBody()
-	fmt.Print(s,"错误:",e)
+	//废弃方法
+	//c:=NewClient(WithTimeOut(5))
+	//c.Url="http://ip:8972"
+   ////请求体
+	//c.Headers["Content-Type"]="application/rpcx"
+	//c.Headers["X-RPCX-SerializeType"]=1
+	//c.Headers["X-RPCX-ServicePath"]="service_name_01"
+	//c.Headers["X-RPCX-ServiceMethod"]="Add"
+	////请求数据体
+	//c.Data["Name"]="xxxxxxxxxxxxx--"
+	//s,e:=c.PostForBody()
+	//fmt.Print(s,"错误:",e)
 
-	//{"Stuatus":3033,"Data":"xxxxxxxxxxxxx--server01-server01"}
+
+}
+
+func TestChangeToQueryUrl(t *testing.T) {
+	url:="http://www.baidu.com"
+	data:=make(map[string]interface{})
+	data["name"]="liuhangkai"
+	data["age"]=100
+	data["height"]=109.12
+	data["niu"]="张三"
+	fmt.Println(MapChangeToQueryUrl(url,data))
+
 
 }
 

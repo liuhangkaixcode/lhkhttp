@@ -18,10 +18,11 @@ var(
 type ClientReq struct {
 	 timeOut  time.Duration //默认50秒的超时时间
 	 method string
-	 Data map[string]interface{}     //请求数据体
-	 Headers map[string]interface{}  //header数据
-	 Url string         //请求url
-	 IsRequstbody bool  //是否是requestBody请求
+	 data map[string]interface{}     //请求数据体
+	 headers map[string]interface{}  //header数据
+	 suburl string         //请求url
+	 isRequstbody bool  //是否是requestBody请求
+	 host string   //请求服务器的域名地址 http://www.baidu.com
 }
 
 type OpFunc  func(c *ClientReq)
@@ -31,100 +32,88 @@ func WithTimeOut(t int64) OpFunc  {
 		c.timeOut=time.Duration(t)*time.Second
 	}
 }
+func WithHost(host string)OpFunc  {
+	return func(c *ClientReq) {
+		c.host=host
+	}
+}
 
 //初始化
 func NewClient(ops...OpFunc) *ClientReq{
-	client:=  &ClientReq{Data:make(map[string]interface{}),Headers:make(map[string]interface{})}
-	client.timeOut=50*time.Second
-	for _,op:=range ops{
-		op(client)
-	}
+	client:=  &ClientReq{
+				data:make(map[string]interface{}),
+				headers:make(map[string]interface{})}
+				client.timeOut=50*time.Second
+				for _,op:=range ops{
+				op(client)
+		        }
 	return client
 }
 
-func (c *ClientReq)Get()( string, error)  {
+func (c *ClientReq)Get(suburl string)(string, error)  {
 	c.method=method_GET
-	c.Data=nil
-	c.Headers=nil
-	c.IsRequstbody=false
+	c.suburl=suburl
+	c.data=nil
+	c.headers=nil
+	c.isRequstbody=false
     return c.request()
 }
 
-func (c *ClientReq)Post()( string, error)   {
+func (c *ClientReq)Post(suburl string,data,headers map[string]interface{} )( string, error)   {
 	c.method=method_POST
-	c.IsRequstbody=false
+	c.isRequstbody=false
+	c.suburl=suburl
+	c.data=data
+	c.headers=headers
 	return c.request()
 }
 
-func (c *ClientReq)PostForBody()(string,error)  {
+func (c *ClientReq)PostForBody(suburl string,data,headers map[string]interface{})(string,error)  {
 	c.method=method_POST
-	c.IsRequstbody=true
-	return c.request()
-}
-
-func (c *ClientReq)Put()( string, error)   {
-	c.method=method_POST
-	c.IsRequstbody=false
-	return c.request()
-}
-
-func (c *ClientReq)PutForBody()(string,error)  {
-	c.method=method_PUT
-	c.IsRequstbody=true
-	return c.request()
-}
-
-func (c *ClientReq)Del()( string, error)   {
-	c.method=method_DELETE
-	c.IsRequstbody=false
-	return c.request()
-}
-
-func (c *ClientReq)DelForBody()(string,error)  {
-	c.method=method_DELETE
-	c.IsRequstbody=true
+	c.isRequstbody=true
+	c.suburl=suburl
+	c.data=data
+	c.headers=headers
 	return c.request()
 }
 
 func (c *ClientReq)request()( string, error) {
-
-	if len(c.Url) == 0 {
-		return "",fmt.Errorf("url没有传")
+    //构建request请求
+	if len(c.suburl) == 0 {
+		return "",fmt.Errorf("suburl没有传")
 	}
-
+	if len(c.host) !=0 {
+		c.suburl=c.host+c.suburl
+	}
 	 var body *bytes.Reader
-	if c.IsRequstbody {
-		if len(c.Data)>0 {
-			marshal, _ := json.Marshal(c.Data)
+	body=new(bytes.Reader)
+	if c.isRequstbody {
+		if len(c.data)>0 {
+			marshal, _ := json.Marshal(c.data)
 			body=bytes.NewReader(marshal)
-		}else{
-			body=new(bytes.Reader)
 		}
 	}else{
-		if len(c.Data)>0 {
-			body=bytes.NewReader([]byte(getQueryStr(c.Data)))
-		}else{
-			body=new(bytes.Reader)
+		if len(c.data)>0 {
+			body=bytes.NewReader([]byte(getQueryStr(c.data)))
 		}
 	}
 
-		req, e := http.NewRequest(c.method, c.Url, body)
-		if e!=nil {
-			return "",e
-		}
+	req, e := http.NewRequest(c.method, c.suburl, body)
+	if e!=nil {
+		return "",e
+	}
 
-
-
-	if len(c.Data)>0 {
-		if c.IsRequstbody {
+	if len(c.data)>0 {
+		if c.isRequstbody {
 			req.Header.Set("Content-Type","application/json")
 		}else{
 			req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 		}
+		for k,v:=range c.headers{
+			req.Header.Set(k,fmt.Sprintf("%v",v))
+		}
 	}
-	for k,v:=range c.Headers{
-		req.Header.Set(k,fmt.Sprintf("%v",v))
-	}
+
 
 		client:=&http.Client{}
 		fmt.Println("超时时间",c.timeOut)
@@ -155,7 +144,7 @@ func getQueryStr(datas map[string]interface{}) string  {
 	for k,v:=range datas{
 		result=fmt.Sprintf("%s&%s=%v",result,k,v)
 	}
-
 	return result[1:]
 
 }
+
