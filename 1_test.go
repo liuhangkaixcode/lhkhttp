@@ -129,3 +129,12 @@ func TestMd5(t *testing.T) {
 	fmt.Println(Md5Str("kaishao")) //32位小写
 	fmt.Println(Sha1ToStr("kaishao")) 
 }
+
+//数据库
+func TestInitMySql(t *testing.T) {
+	NewMysql()
+	NewMysql()
+	NewMysql()
+	NewMysql()
+
+}
