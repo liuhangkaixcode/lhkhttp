@@ -20,7 +20,7 @@ func NewMysql()  SqlIF{
 		fmt.Print("=========once")
 	})
 	fmt.Println("=======")
-
+   return nil
 }
 func InitMySql() (*sqlx.DB,error) {
 	dns := "root:liuhangkai*#920@tcp(159.75.42.138:3306)/test1"
