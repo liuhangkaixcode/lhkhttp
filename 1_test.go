@@ -1,6 +1,7 @@
 package lhkhttp
 
 import (
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"testing"
@@ -96,7 +97,6 @@ func TestRpcXGateway(t *testing.T)  {
 	//s,e:=c.PostForBody()
 	//fmt.Print(s,"错误:",e)
 
-
 }
 
 func TestChangeToQueryUrl(t *testing.T) {
@@ -107,8 +107,21 @@ func TestChangeToQueryUrl(t *testing.T) {
 	data["height"]=109.12
 	data["niu"]="张三"
 	fmt.Println(MapChangeToQueryUrl(url,data))
-
-
 }
 
+//测试 aes ecb
+func TestAesEncrypt(t *testing.T) {
+	//加密
+	jsonstr:=`{"w":"w xx w "}`
+	src := []byte(jsonstr) //原明文
+	// AES-128-ECB, PKCS7_PADDING 输出base64 utf-8编码
+	key := []byte("a$efkghm@hkybu#%") //16位密码
+	dst, _ := AesECBEncrypt(src, key, PKCS7_PADDING)
+	str:=base64.StdEncoding.EncodeToString(dst)
+	fmt.Println(str)
+	//解密
+	src, _ = base64.StdEncoding.DecodeString(str)
+	dst, _ = AesECBDecrypt(src, key, PKCS7_PADDING)
+	fmt.Println(string(dst))
+}
 

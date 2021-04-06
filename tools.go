@@ -1,6 +1,7 @@
 package lhkhttp
 
 import (
+	"crypto/aes"
 	"fmt"
 	"net/url"
 )
@@ -29,4 +30,27 @@ func URLencode(str string) string {
 }
 func URLDecode(str string)(string ,error) {
 	return url.QueryUnescape(str)
+}
+
+//aes加密
+//go get -u github.com/forgoer/openssl
+//http://tool.chacuo.net/cryptrsapubkey
+
+
+// AesECBEncrypt
+func AesECBEncrypt(src, key []byte, padding string) ([]byte, error) {
+	block, err := aes.NewCipher(key)
+	if err != nil {
+		return nil, err
+	}
+	return ECBEncrypt(block, src, padding)
+}
+
+// AesECBDecrypt
+func AesECBDecrypt(src, key []byte, padding string) ([]byte, error) {
+	block, err := aes.NewCipher(key)
+	if err != nil {
+		return nil, err
+	}
+	return ECBDecrypt(block, src, padding)
 }

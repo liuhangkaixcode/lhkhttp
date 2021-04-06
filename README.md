@@ -66,4 +66,21 @@ func TestPostBody(t *testing.T) {
 	fmt.Println(r["height"],r["name"])
 
 }
+
+
+
+//测试 aes ecb加解密
+func TestAesEncrypt(t *testing.T) {
+	//加密
+	src := []byte("王仁家123456凯哥一号") //原明文
+	// AES-128-ECB, PKCS7_PADDING 输出base64 utf-8编码
+	key := []byte("a$efkghm@hkybu#%") //16位密码
+	dst, _ := AesECBEncrypt(src, key, PKCS7_PADDING)
+	str:=base64.StdEncoding.EncodeToString(dst)
+	fmt.Println(str)
+	//解密
+	src, _ = base64.StdEncoding.DecodeString(str)
+	dst, _ = AesECBDecrypt(src, key, PKCS7_PADDING)
+	fmt.Println(string(dst))
+}
 ```
