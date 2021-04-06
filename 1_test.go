@@ -125,3 +125,7 @@ func TestAesEncrypt(t *testing.T) {
 	fmt.Println(string(dst))
 }
 
+func TestMd5(t *testing.T) {
+	fmt.Println(Md5Str("kaishao")) //32位小写
+	fmt.Println(Sha1ToStr("kaishao")) 
+}
