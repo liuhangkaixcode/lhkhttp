@@ -130,11 +130,3 @@ func TestMd5(t *testing.T) {
 	fmt.Println(Sha1ToStr("kaishao")) 
 }
 
-//数据库
-func TestInitMySql(t *testing.T) {
-	NewMysql()
-	NewMysql()
-	NewMysql()
-	NewMysql()
-
-}
