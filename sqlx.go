@@ -8,7 +8,7 @@ import (
 )
 var (
 	once sync.Once
-	sqlhandle *SqlSt
+	sqlhandle *SqlManger
 )
 
 type SqlIF interface {
@@ -17,20 +17,27 @@ type SqlIF interface {
     Get(sqlstr string,obj interface{})(error)
     //多行
     Select(sqlStr string,objs interface{})(error)
-
+    //多行map
     SelectMap(sqlStr string)([]map[string]interface{},error)
+    //insert
+    Insert(sqlStr string)(insertId int64,err error)
+    //updateOrDelete
+	UpdateOrDelete(sqlStr string)(rowsAffect int64,err error)
 }
-type SqlSt struct {
+type SqlManger struct {
 	database *sqlx.DB
 }
 
-func (s *SqlSt)Get(sqlstr string,obj interface{}) (error) {
+func (s *SqlManger)Get(sqlstr string,obj interface{}) (error) {
    return s.database.Get(obj,sqlstr)
 }
-func (s *SqlSt)Select(sqlstr string,objs interface{}) (error) {
-    return  s.database.Select(objs,sqlstr)
+func (s *SqlManger)Select(sqlstr string,objs interface{}) (error) {
+	exec, _ := s.database.Exec("")
+	exec.LastInsertId()
+	exec.RowsAffected()
+	return  s.database.Select(objs,sqlstr)
 }
-func (s *SqlSt)SelectMap(sqlStr string)([]map[string]interface{},error)  {
+func (s *SqlManger)SelectMap(sqlStr string)([]map[string]interface{},error)  {
 	rows, err := s.database.Queryx(sqlStr)
 	if err!=nil {
 		return nil, err
@@ -57,7 +64,7 @@ func NewMysql(dns string)  SqlIF{
 			fmt.Println("mysql正常启动")
 		}
 
-		sqlhandle= new(SqlSt)
+		sqlhandle= new(SqlManger)
 		sqlhandle.database=database
 
 	})
@@ -65,9 +72,29 @@ func NewMysql(dns string)  SqlIF{
    return sqlhandle
 }
 
-func (s *SqlSt)Close () {
+func (s *SqlManger)Insert(sqlStr string)(insertId int64,err error){
+	exec, err := s.database.Exec(sqlStr)
+	if err!=nil {
+		return 0, err
+	}
+	insertId,err= exec.LastInsertId()
+	return
+}
+
+func (s *SqlManger)UpdateOrDelete(sqlStr string)(rowsAffect int64,err error){
+	exec, err := s.database.Exec(sqlStr)
+	if err!=nil {
+		return 0, err
+	}
+	rowsAffect,err= exec.RowsAffected()
+	return
+}
+
+func (s *SqlManger)Close () {
 	if sqlhandle !=nil{
 		sqlhandle.database.Close()
+
+
 	}
 }
 

@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"testing"
+	"time"
 )
 //name "name": converting NULL to string is unsupported  ==>sql.NullString
 type Stu struct {
@@ -17,9 +18,7 @@ var(
   dns1 = "root:123456@tcp(14.116.147.19:8787)/skill?timeout=10s&readTimeout=12s"
     sqlstrucet = NewMysql(dns1)
 )
-
-
-
+//查询
 func TestInitMySql(t *testing.T) {
 
 	//单行
@@ -35,10 +34,19 @@ func TestInitMySql(t *testing.T) {
 	//}
 
 	//获取一个属性
-	siglenamesql:=fmt.Sprintf("select name from stu where id='%d'",1)
+	siglenamesql:=fmt.Sprintf("select birth from stu where id='%d'",1)
 	var name string
 	err := sqlstrucet.Get(siglenamesql, &name)
 	fmt.Println(err,name)
+
+	//时间 to 时间戳
+	loc, _ := time.LoadLocation("Asia/Shanghai")        //设置时区
+	tt, _ := time.ParseInLocation("2006-01-02 15:04:05", name, loc) //2006-01-02 15:04:05是转换的格式如php的"Y-m-d H:i:s"
+	fmt.Println(tt.Unix(),tt.Year())                             //1531292871
+
+	//时间戳 to 时间
+	tm := time.Unix(tt.Unix(), 0)
+	fmt.Println(tm.Format("2006-01-02 15:04:05")) //2018-07-11 15:10:19
 
 	//多行
 	//doublesqlstr:=fmt.Sprintf("select id,name,total from stu")
@@ -70,5 +78,20 @@ func TestInitMySql(t *testing.T) {
 
 
 
+}
+
+//插入
+func TestSqlManger_Insert(t *testing.T) {
+	//插入
+	//sqlstr:=fmt.Sprintf("insert into stu(name,total)values('%s','%d')","刘航军",123)
+	//fmt.Println(sqlstrucet.Insert(sqlstr))
+
+    //更新
+	//sqlstr:=fmt.Sprintf("update stu set name='%s' where id<'%d'","更新刘航军名字1",3)
+	//fmt.Println(sqlstrucet.UpdateOrDelete(sqlstr))
+
+	//删除
+	//sqlstr:=fmt.Sprintf("delete from stu where id='%d'",1)
+	//fmt.Println(sqlstrucet.UpdateOrDelete(sqlstr))
 }
 
