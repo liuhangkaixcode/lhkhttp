@@ -17,7 +17,7 @@ var(
 )
 type ClientReq struct {
 	 timeOut  time.Duration //默认50秒的超时时间
-	 method string
+	 method string           //请求方式
 	 data map[string]interface{}     //请求数据体
 	 headers map[string]interface{}  //header数据
 	 suburl string         //请求url
@@ -26,12 +26,13 @@ type ClientReq struct {
 }
 
 type OpFunc  func(c *ClientReq)
-
+//设置超时时间
 func WithTimeOut(t int64) OpFunc  {
 	return func(c *ClientReq) {
 		c.timeOut=time.Duration(t)*time.Second
 	}
 }
+//请求服务器的域名公众设置 http://www.baidu.com
 func WithHost(host string)OpFunc  {
 	return func(c *ClientReq) {
 		c.host=host
@@ -50,6 +51,9 @@ func NewClient(ops...OpFunc) *ClientReq{
 	return client
 }
 
+/**
+suburl 请求url的子地址或者全地址
+*/
 func (c *ClientReq)Get(suburl string)(string, error)  {
 	c.method=method_GET
 	c.suburl=suburl
@@ -58,7 +62,11 @@ func (c *ClientReq)Get(suburl string)(string, error)  {
 	c.isRequstbody=false
     return c.request()
 }
-
+/**
+suburl  请求url的子地址或者全地址
+data    上送参数
+headers 请求头
+*/
 func (c *ClientReq)Post(suburl string,data,headers map[string]interface{} )( string, error)   {
 	c.method=method_POST
 	c.isRequstbody=false
@@ -67,7 +75,11 @@ func (c *ClientReq)Post(suburl string,data,headers map[string]interface{} )( str
 	c.headers=headers
 	return c.request()
 }
-
+/**
+suburl  请求url的子地址或者全地址
+data    上送参数
+headers 请求头
+*/
 func (c *ClientReq)PostForBody(suburl string,data,headers map[string]interface{})(string,error)  {
 	c.method=method_POST
 	c.isRequstbody=true

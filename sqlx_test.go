@@ -27,8 +27,9 @@ type Stu struct {
 }
 //数据库
 var(
+	///test?charset=utf8&timeout=10s&readTimeout=30s&writeTimeOut=30s
   dns1 = "root:123456@tcp(ip:8787)/skill?timeout=10s&readTimeout=12s"
-    sqlstrucet = NewMysql(dns1)
+  sqlstrucet = NewMysql(dns1)
 
 )
 //查询
@@ -122,12 +123,14 @@ func TestSqlManger_Insert(t *testing.T) {
 		if er!=nil {
 			return er
 		}
-       return nil
+		er = sqlstrucet.BeginExec(tx, "update stu set name='w' where id=1")
+		if er!=nil{
+			return er
+		}
+		return nil
+
 	})
 	fmt.Println("=======ceshi")
-
-
-
 
 }
 
