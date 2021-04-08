@@ -123,7 +123,7 @@ func TestSqlManger_Insert(t *testing.T) {
 	//fmt.Println(sqlstrucet.UpdateOrDelete("delete from stu where id=?",3))
 
 
-    //事务操作
+    //事务操作 innodb
 	sqlstrucet.BeginHandle(func(tx *sql.Tx,er error) error {
 		if er!=nil{
 			return fmt.Errorf("开启事务失败")
