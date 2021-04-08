@@ -22,7 +22,7 @@ type SqlIF interface {
     //多行
     Select(sqlStr string,objs interface{},args...interface{})(error)
     //返回多行map
-    SelectMap(sqlStr string,args...interface{})([]map[string]interface{},error)
+    SelectMap(sqlStr string)([]map[string]interface{},error)
     //insert
     Insert(sqlStr string,args...interface{})(insertId int64,err error)
     //updateOrDelete
@@ -41,13 +41,13 @@ type SqlManger struct {
 }
 
 func (s *SqlManger)Get(sqlstr string,obj interface{},args...interface{}) (error) {
-   return s.database.Get(obj,sqlstr,args)
+   return s.database.Get(obj,sqlstr,args...)
 }
 func (s *SqlManger)Select(sqlstr string,objs interface{},args...interface{}) (error) {
-	return  s.database.Select(objs,sqlstr,args)
+	return  s.database.Select(objs,sqlstr,args...)
 }
-func (s *SqlManger)SelectMap(sqlStr string,args...interface{})([]map[string]interface{},error)  {
-	rows, err := s.database.Queryx(sqlStr,args)
+func (s *SqlManger)SelectMap(sqlStr string)([]map[string]interface{},error)  {
+	rows, err := s.database.Queryx(sqlStr)
 	if err!=nil {
 		return nil, err
 	}
@@ -81,7 +81,7 @@ func NewMysql(dns string)  SqlIF{
 }
 
 func (s *SqlManger)Insert(sqlStr string,args...interface{})(insertId int64,err error){
-	exec, err := s.database.Exec(sqlStr,args)
+	exec, err := s.database.Exec(sqlStr,args...)
 	if err!=nil {
 		return 0, err
 	}
@@ -90,7 +90,7 @@ func (s *SqlManger)Insert(sqlStr string,args...interface{})(insertId int64,err e
 }
 
 func (s *SqlManger)UpdateOrDelete(sqlStr string,args...interface{})(rowsAffect int64,err error){
-	exec, err := s.database.Exec(sqlStr,args)
+	exec, err := s.database.Exec(sqlStr,args...)
 	if err!=nil {
 		return 0, err
 	}
@@ -122,12 +122,12 @@ func (s *SqlManger)BeginHandle(f func(t *sql.Tx,err error) error) {
 
 func (s *SqlManger)BeginQuery(tx *sql.Tx,sqlstr string,args...interface{})error{
 	rr := tx.QueryRow(sqlstr)
-	err := rr.Scan(args)
+	err := rr.Scan(args...)
 	return err
 }
 
 func (s *SqlManger)BeginExec(tx *sql.Tx,sqlstr string,args...interface{})error{
-	_, err := tx.Exec(sqlstr,args)
+	_, err := tx.Exec(sqlstr,args...)
 	return err
 }
 
