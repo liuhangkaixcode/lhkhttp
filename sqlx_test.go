@@ -7,6 +7,18 @@ import (
 	"time"
 )
 //name "name": converting NULL to string is unsupported  ==>sql.NullString
+//乐观锁
+//Select version  from xx where id=1   ++version=4
+//update xx set store=store+1,version=version+1 where version=4 and id=1
+//测试事务
+/*
+	*r := tx.QueryRow("select id,name,total from stu where id=1 for update")
+			var id int
+			var name string
+			var total int
+			rr.Scan(&id, &name, &total)
+	 tx.Exec("insert into or1 (name) values(?)", time.Now().String()+fmt.Sprintf("==>%v", ipaddr))
+*/
 type Stu struct {
 	ID int `db:"id""`
 	Name sql.NullString `db:"name"`
@@ -15,12 +27,13 @@ type Stu struct {
 }
 //数据库
 var(
-  dns1 = "root:123456@tcp(14.116.147.19:8787)/skill?timeout=10s&readTimeout=12s"
+  dns1 = "root:123456@tcp(14.116.247.199:8787)/skill?timeout=10s&readTimeout=12s"
     sqlstrucet = NewMysql(dns1)
+
 )
 //查询
 func TestInitMySql(t *testing.T) {
-
+     //defer  sqlstrucet.Close()  //销毁连接
 	//单行
 	//signlesqlstr:=fmt.Sprintf("select id,name,total,birth from stu where id='%d' ",1)
 	//var stu Stu
@@ -93,5 +106,28 @@ func TestSqlManger_Insert(t *testing.T) {
 	//删除
 	//sqlstr:=fmt.Sprintf("delete from stu where id='%d'",1)
 	//fmt.Println(sqlstrucet.UpdateOrDelete(sqlstr))
+
+
+    //事务操作
+	sqlstrucet.BeginHandle(func(tx *sql.Tx,er error) error {
+		if er!=nil{
+			return fmt.Errorf("开启事务失败")
+		}
+		//开始执行业务逻辑
+		var id int
+		var name string
+		var total int
+		er = sqlstrucet.BeginQuery(tx, "select id,name,total form stu where id=1 for update", &id, &name, &total)
+		fmt.Println(id,name,total,er)
+		if er!=nil {
+			return er
+		}
+       return nil
+	})
+	fmt.Println("=======ceshi")
+
+
+
+
 }
 
