@@ -20,13 +20,13 @@ func TestQueStr(t *testing.T)  {
 
 //普通get请求
 func TestGet(t *testing.T) {
-	/*第一种方式
+	 //第一种方式
 	urlstring:="http://ip:8787/get1?type=get&name=玩笑&score=刘寒假"
 	fmt.Println(urlstring)
 	c:=NewClient()
 	s, e :=c.Get(urlstring)
 	fmt.Print(s,e)
-	*/
+
     //第二种方式
 	/*
 	c:=NewClient(WithHost("http://ip:8787"),WithTimeOut(15))
