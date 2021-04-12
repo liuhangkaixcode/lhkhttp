@@ -2,9 +2,7 @@ package lhkhttp
 
 import (
 	"database/sql"
-	"encoding/json"
 	"fmt"
-	"strconv"
 	"testing"
 )
 //name "name": converting NULL to string is unsupported  ==>sql.NullString
@@ -29,8 +27,8 @@ type Stu struct {
 //数据库
 var(
 	///test?charset=utf8&timeout=10s&readTimeout=30s&writeTimeOut=30s
-  dns1 = "root:123456@tcp(127.0.0.1:3306)/skill?timeout=10s&readTimeout=12s"
-  sqlstrucet = NewMysql(dns1)
+  //dns1 = "root:123456@tcp(127.0.0.1:3306)/skill?timeout=10s&readTimeout=12s"
+  //sqlstrucet = NewMysql(dns1)
 
 )
 //查询
@@ -85,21 +83,21 @@ func TestInitMySql(t *testing.T) {
 	//}
 
 	//多行map[string]interface{}返回
-	doublesqlstr:="select id,name,total from stu where id>0"
-	result,_ := sqlstrucet.SelectMap(doublesqlstr)
-	for _,m:=range result{
-		for k,v:=range m{
-			if k=="id" || k == "total"{
-				atoi, _ := strconv.Atoi(string(v.([]byte)))
-				m[k]=atoi
-			}else{
-				m[k]=string(v.([]byte))
-			}
-
-		}
-	}
-	marshal, _ := json.Marshal(result)
-	fmt.Println("==>",string(marshal))
+	//doublesqlstr:="select id,name,total from stu where id>0"
+	//result,_ := sqlstrucet.SelectMap(doublesqlstr)
+	//for _,m:=range result{
+	//	for k,v:=range m{
+	//		if k=="id" || k == "total"{
+	//			atoi, _ := strconv.Atoi(string(v.([]byte)))
+	//			m[k]=atoi
+	//		}else{
+	//			m[k]=string(v.([]byte))
+	//		}
+	//
+	//	}
+	//}
+	//marshal, _ := json.Marshal(result)
+	//fmt.Println("==>",string(marshal))
 
 
 
@@ -124,31 +122,31 @@ func TestSqlManger_Insert(t *testing.T) {
 
 
     //事务操作 innodb
-	sqlstrucet.BeginHandle(func(tx *sql.Tx,er error) error {
-		if er!=nil{
-			return fmt.Errorf("开启事务失败")
-		}
-		//开始执行业务逻辑
-		//var id int
-		//var name string
-		//var total int
-		//er = sqlstrucet.BeginQuery(tx, "select id,name,total from stu where id=2 for update", &id, &name, &total)
-		//fmt.Println(id,name,total,er)
-		//if er!=nil {
-		//	return er
-		//}
-		er = sqlstrucet.BeginExec(tx, "update stu set name='new2' where id=?",2)
-		if er!=nil{
-			return er
-		}
-
-		er = sqlstrucet.BeginExec(tx, "update stu set name='new4' where id=?",4)
-		if er!=nil{
-			return er
-		}
-		return nil
-
-	})
+	//sqlstrucet.BeginHandle(func(tx *sql.Tx,er error) error {
+	//	if er!=nil{
+	//		return fmt.Errorf("开启事务失败")
+	//	}
+	//	//开始执行业务逻辑
+	//	var id int
+	//	var name string
+	//	var total int
+	//	er = sqlstrucet.BeginQuery(tx, "select id,name,total from stu where id=2 for update", &id, &name, &total)
+	//	fmt.Println(id,name,total,er)
+	//	if er!=nil {
+	//		return er
+	//	}
+	//	er = sqlstrucet.BeginExec(tx, "update stu set name='new2' where id=?",2)
+	//	if er!=nil{
+	//		return er
+	//	}
+	//
+	//	er = sqlstrucet.BeginExec(tx, "update stu set name='new4' where id=?",4)
+	//	if er!=nil{
+	//		return er
+	//	}
+	//	return nil
+	//
+	//})
 	fmt.Println("=======ceshi")
 
 }
