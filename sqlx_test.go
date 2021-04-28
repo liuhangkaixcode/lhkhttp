@@ -27,7 +27,6 @@ type Stu struct {
 //数据库
 var(
 	//test?charset=utf8&timeout=10s&readTimeout=30s&writeTimeOut=30s
-  dns1 = "root:123456@tcp(14.116.147.19:8787)/skill?timeout=10s&readTimeout=12s"
   sqlstrucet = NewMysql(dns1)
 
 )
