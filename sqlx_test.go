@@ -2,9 +2,7 @@ package lhkhttp
 
 import (
 	"database/sql"
-	"encoding/json"
 	"fmt"
-	"strings"
 	"testing"
 )
 //name "name": converting NULL to string is unsupported  ==>sql.NullString
@@ -31,7 +29,7 @@ type Stu struct {
 //数据库
 var(
 	//test?charset=utf8&timeout=10s&readTimeout=30s&writeTimeOut=30s
-	dns1 = "root:123456@tcp(14.11..19:8787)/skill?timeout=10s&readTimeout=12s"
+	dns1 = "root:123456@tcp(14.16.17.19:8787)/skill?timeout=10s&readTimeout=12s"
   sqlstrucet = NewMysql(dns1)
 
 )
@@ -50,22 +48,42 @@ func TestInitMySql(t *testing.T) {
 	//var stu Stu
 	//err := sqlstrucet.Get(signlesqlstr, &stu)
 
-	signlesqlstr:="select id,name,total,birth from stu where id=?"
-	var stu Stu
-	err := sqlstrucet.Get(signlesqlstr, &stu,2)
+	//signlesqlstr:="select id,name,total,birth from stu where id=?"
+	//var stu Stu
+	//err := sqlstrucet.Get(signlesqlstr, &stu,2)
+	//
+	//
+	//if err!=nil {
+	//	if strings.Contains(err.Error(),"sql: no rows in result set") {
+	//		fmt.Print("baocuo",err.Error(),"没有查询到数据或者数据为空")
+	//	}else{
+	//		fmt.Print("sql报错",err.Error())
+	//	}
+	//}else{
+	//	marshal, _ := json.Marshal(stu)
+	//	fmt.Println("结果",string(marshal))
+	//	//fmt.Println(stu.Name.String)
+	//}
 
-
-	if err!=nil {
-		if strings.Contains(err.Error(),"sql: no rows in result set") {
-			fmt.Print("baocuo",err.Error(),"没有查询到数据或者数据为空")
-		}else{
-			fmt.Print("sql报错",err.Error())
-		}
-	}else{
-		marshal, _ := json.Marshal(stu)
-		fmt.Println("结果",string(marshal))
-		//fmt.Println(stu.Name.String)
-	}
+	//多表查询
+	//type Person struct {
+	//	Name string `db:"name"`
+	//	Desc string  `db:"desc"`
+	//}
+	//var p Person
+	//sqlstr:="select a.name,b.desc from stu a,profile b where a.id=b.stu_id"
+	//err := sqlstrucet.Get(sqlstr, &p)
+	//if err!=nil {
+	//	if strings.Contains(err.Error(),"sql: no rows in result set") {
+	//		fmt.Print("baocuo",err.Error(),"没有查询到数据或者数据为空")
+	//	}else{
+	//		fmt.Print("sql报错",err.Error())
+	//	}
+	//}else{
+	//	marshal, _ := json.Marshal(p)
+	//	fmt.Println("结果",string(marshal))
+	//	//fmt.Println(stu.Name.String)
+	//}
 
 	//获取一个属性
 	//siglenamesql:=fmt.Sprintf("select name from stu where id='%d'",2)
@@ -118,7 +136,7 @@ func TestInitMySql(t *testing.T) {
 
 }
 
-//插入
+//插入写操作
 func TestSqlManger_Insert(t *testing.T) {
 	//插入
 	//sqlstr:=fmt.Sprintf("insert into stu(name,total)values('%s','%d')","ww刘航军",123)
@@ -164,5 +182,24 @@ func TestSqlManger_Insert(t *testing.T) {
 	//})
 	fmt.Println("=======ceshi")
 
+}
+//事务操作
+func TestBeginDb(t *testing.T) {
+	sqlstrucet.BeginHandle(func(tx *sql.Tx, err error) error {
+		if err==nil {
+			err := sqlstrucet.BeginExec(tx, "insert into or1(name)values(\"dfd\")")
+			if err!=nil {
+				return err
+			}
+
+			err = sqlstrucet.BeginExec(tx, "insert into or1(name1)values(\"wag\")")
+			if err!=nil {
+				return err
+			}
+
+		}
+
+		return nil
+	})
 }
 
