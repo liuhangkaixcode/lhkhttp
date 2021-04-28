@@ -29,8 +29,8 @@ type Stu struct {
 //数据库
 var(
 	//test?charset=utf8&timeout=10s&readTimeout=30s&writeTimeOut=30s
-	dns1 = "root:123456@tcp(14.16.17.19:8787)/skill?timeout=10s&readTimeout=12s"
-  sqlstrucet = NewMysql(dns1)
+	//dns1 = "root:123456@tcp(14.16.17.19:8787)/skill?timeout=10s&readTimeout=12s"
+  //sqlstrucet = NewMysql(dns1)
 
 )
 
@@ -42,7 +42,7 @@ func (x Stu) MarshalJSON() ([]byte, error) {//解决sql.numString
 //查询
 func TestInitMySql(t *testing.T) {
 
-     defer  sqlstrucet.Close()  //销毁连接
+    // defer  sqlstrucet.Close()  //销毁连接
 	//单行
 	//signlesqlstr:=fmt.Sprintf("select id,name from stu where id='%d'",30)
 	//var stu Stu
@@ -185,21 +185,21 @@ func TestSqlManger_Insert(t *testing.T) {
 }
 //事务操作
 func TestBeginDb(t *testing.T) {
-	sqlstrucet.BeginHandle(func(tx *sql.Tx, err error) error {
-		if err==nil {
-			err := sqlstrucet.BeginExec(tx, "insert into or1(name)values(\"dfd\")")
-			if err!=nil {
-				return err
-			}
-
-			err = sqlstrucet.BeginExec(tx, "insert into or1(name1)values(\"wag\")")
-			if err!=nil {
-				return err
-			}
-
-		}
-
-		return nil
-	})
+	//sqlstrucet.BeginHandle(func(tx *sql.Tx, err error) error {
+	//	if err==nil {
+	//		err := sqlstrucet.BeginExec(tx, "insert into or1(name)values(\"dfd\")")
+	//		if err!=nil {
+	//			return err
+	//		}
+	//
+	//		err = sqlstrucet.BeginExec(tx, "insert into or1(name1)values(\"wag\")")
+	//		if err!=nil {
+	//			return err
+	//		}
+	//
+	//	}
+	//
+	//	return nil
+	//})
 }
 

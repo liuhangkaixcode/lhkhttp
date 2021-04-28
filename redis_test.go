@@ -3,6 +3,7 @@ package lhkhttp
 import (
 	"fmt"
 	"testing"
+	"time"
 )
 
 func TestNewRedis(t *testing.T) {
@@ -20,8 +21,11 @@ func testBPOP()  {
 			stopflag ++
 			select {
 			case tt:=<-res:
-				fmt.Print("result==>",tt)
+				fmt.Println("外部的值",tt)
+				case <-time.After(time.Second*5):
+					fmt.Println("==已经超时=",stopflag)
 			}
+
 			if stopflag ==9 {
 				 exit<-1
 			}

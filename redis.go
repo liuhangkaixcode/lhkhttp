@@ -12,6 +12,8 @@ var (
 	redisonce sync.Once
 )
 type RedisIF interface {
+	//选择数据库
+	Select(db int)error
 	//string操作 expireTime 过期时间 0表示不过期
 	SetV(k,v string,expireTime int)(er error)
 	GetV(k string)(string,error)
@@ -62,7 +64,7 @@ func NewRedis(url string) RedisIF {
 	return redismanger
 }
 //string操作 expireTime 过期时间 0表示不过期
-func (r *RedisManger) SetV(k,v string,expireTime int)(er error) {
+func (r *RedisManger) SetV(k,v string,expireTime int,db...int)(er error) {
 	conn := r.pool.Get()
 	defer conn.Close()
 	if expireTime == 0 {
@@ -71,6 +73,12 @@ func (r *RedisManger) SetV(k,v string,expireTime int)(er error) {
 		_,er=conn.Do("SETEX", k, expireTime,v)
 	}
 	return
+}
+func (r *RedisManger)Select(db int) error{
+	conn := r.pool.Get()
+	defer conn.Close()
+	_, err := conn.Do("SELECT", db)
+	return err
 }
 func (r *RedisManger)GetV(k string)(string,error){
 	conn := r.pool.Get()
@@ -114,7 +122,9 @@ func (r *RedisManger)B_L_R_POP(command,k string,idleTime int,exit <-chan int,res
 						continue
 					}
 					if zhi,ok:=v.([]byte);ok {
+						fmt.Println("内部的值",string(zhi))
 						res<-string(zhi)
+
 					}
 				}
 			}
