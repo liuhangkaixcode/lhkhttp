@@ -19,6 +19,9 @@ type RedisIF interface {
 	LorRPUSH(command string,v...interface{})error
 	//POP操作 command(RPOP LPOP)
 	LorRPOP(command,k string)(string ,error)
+	//设置过期时间
+	
+	//获取过期时间
 	//阻塞式的获取队列 BLPOP BRPOP
 	B_L_R_POP(command,k string,idleTime int,stop <-chan int,res chan <-string)
 

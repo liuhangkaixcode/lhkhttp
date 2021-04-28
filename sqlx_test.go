@@ -2,7 +2,9 @@ package lhkhttp
 
 import (
 	"database/sql"
+	"encoding/json"
 	"fmt"
+	"strings"
 	"testing"
 )
 //name "name": converting NULL to string is unsupported  ==>sql.NullString
@@ -19,41 +21,51 @@ import (
 	 tx.Exec("insert into or1 (name) values(?)", time.Now().String()+fmt.Sprintf("==>%v", ipaddr))
 */
 type Stu struct {
-	ID int `db:"id""`
-	Name sql.NullString `db:"name"`
-	Total int  `db:"total"`
-	Birth string `db:"birth"`
+	ID int `db:"id"  json:"id"`
+	Name sql.NullString `db:"name" json:"name"`
+	Total int  `db:"total" json:"total"`
+	Birth string `db:"birth" json:"birth"`
 }
+
+
 //数据库
 var(
 	//test?charset=utf8&timeout=10s&readTimeout=30s&writeTimeOut=30s
+	dns1 = "root:123456@tcp(14.11..19:8787)/skill?timeout=10s&readTimeout=12s"
   sqlstrucet = NewMysql(dns1)
 
 )
+
+func (x Stu) MarshalJSON() ([]byte, error) {//解决sql.numString
+	//这里进行操作
+	return []byte("{\"one\":\"two\"}"),nil
+}
+
 //查询
 func TestInitMySql(t *testing.T) {
+
      defer  sqlstrucet.Close()  //销毁连接
 	//单行
 	//signlesqlstr:=fmt.Sprintf("select id,name from stu where id='%d'",30)
 	//var stu Stu
 	//err := sqlstrucet.Get(signlesqlstr, &stu)
 
-	//signlesqlstr:="select id,name,total,birth from stu where id=?"
-	//var stu Stu
-	//err := sqlstrucet.Get(signlesqlstr, &stu,20)
-	//
-	//
-	//if err!=nil {
-	//	if strings.Contains(err.Error(),"sql: no rows in result set") {
-	//		fmt.Print("baocuo",err.Error(),"没有查询到数据或者数据为空")
-	//	}else{
-	//		fmt.Print("sql报错",err.Error())
-	//	}
-	//}else{
-	//	marshal, _ := json.Marshal(stu)
-	//	fmt.Println("==>",string(marshal))
-	//	fmt.Println(stu.Name.String)
-	//}
+	signlesqlstr:="select id,name,total,birth from stu where id=?"
+	var stu Stu
+	err := sqlstrucet.Get(signlesqlstr, &stu,2)
+
+
+	if err!=nil {
+		if strings.Contains(err.Error(),"sql: no rows in result set") {
+			fmt.Print("baocuo",err.Error(),"没有查询到数据或者数据为空")
+		}else{
+			fmt.Print("sql报错",err.Error())
+		}
+	}else{
+		marshal, _ := json.Marshal(stu)
+		fmt.Println("结果",string(marshal))
+		//fmt.Println(stu.Name.String)
+	}
 
 	//获取一个属性
 	//siglenamesql:=fmt.Sprintf("select name from stu where id='%d'",2)
