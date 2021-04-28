@@ -6,7 +6,7 @@ import (
 )
 
 func TestNewRedis(t *testing.T) {
-     testBPOP()
+     //testBPOP()
 }
 
 func testBPOP()  {

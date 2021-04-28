@@ -26,26 +26,30 @@ type Stu struct {
 }
 //数据库
 var(
-	///test?charset=utf8&timeout=10s&readTimeout=30s&writeTimeOut=30s
-  //dns1 = "root:123456@tcp(127.0.0.1:3306)/skill?timeout=10s&readTimeout=12s"
-  //sqlstrucet = NewMysql(dns1)
+	//test?charset=utf8&timeout=10s&readTimeout=30s&writeTimeOut=30s
+  dns1 = "root:123456@tcp(14.116.147.19:8787)/skill?timeout=10s&readTimeout=12s"
+  sqlstrucet = NewMysql(dns1)
 
 )
 //查询
 func TestInitMySql(t *testing.T) {
-     //defer  sqlstrucet.Close()  //销毁连接
+     defer  sqlstrucet.Close()  //销毁连接
 	//单行
-	//signlesqlstr:=fmt.Sprintf("select id,name,total,birth from stu where id='%d'",1)
+	//signlesqlstr:=fmt.Sprintf("select id,name from stu where id='%d'",30)
 	//var stu Stu
 	//err := sqlstrucet.Get(signlesqlstr, &stu)
 
 	//signlesqlstr:="select id,name,total,birth from stu where id=?"
 	//var stu Stu
-	//err := sqlstrucet.Get(signlesqlstr, &stu,2)
+	//err := sqlstrucet.Get(signlesqlstr, &stu,20)
 	//
 	//
 	//if err!=nil {
-	//	fmt.Print(err)
+	//	if strings.Contains(err.Error(),"sql: no rows in result set") {
+	//		fmt.Print("baocuo",err.Error(),"没有查询到数据或者数据为空")
+	//	}else{
+	//		fmt.Print("sql报错",err.Error())
+	//	}
 	//}else{
 	//	marshal, _ := json.Marshal(stu)
 	//	fmt.Println("==>",string(marshal))

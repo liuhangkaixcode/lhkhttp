@@ -72,7 +72,7 @@ func (r *RedisManger) SetV(k,v string,expireTime int)(er error) {
 func (r *RedisManger)GetV(k string)(string,error){
 	conn := r.pool.Get()
 	defer conn.Close()
-	s, err := redis.String(conn.Do("get", "k"))
+	s, err := redis.String(conn.Do("get", k))
 	return s,err
 }
 func (r *RedisManger)LorRPUSH(command string,v...interface{})error{
