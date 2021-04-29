@@ -12,11 +12,14 @@ var (
 	redisonce sync.Once
 )
 type RedisIF interface {
-	//选择数据库
-	Select(db int)error
-	//string操作 expireTime 过期时间 0表示不过期
-	SetV(k,v string,expireTime int)(er error)
+
+	//string操作
+	SetV(k,v string)(er error)
 	GetV(k string)(string,error)
+	//expire 过期时间 0表示不过期  db选择数据0-15 默认值是0
+	SetEV(k,v string,expire,db int)(er error)
+	GetEV(k string,db int)(string error)
+
 	//list 入栈操作操作 command (RPUSH,LPUSH)  v 第一个是key 后面依次是value
 	LorRPUSH(command string,v...interface{})error
 	//POP操作 command(RPOP LPOP)
@@ -33,22 +36,46 @@ type RedisIF interface {
 }
 type RedisManger struct {
 	pool *redis.Pool
+	pass  string
+	urlstr string
 }
 
-func NewRedis(url string) RedisIF {
-	if len(url) == 0{
-		url ="127.0.0.1:6379"
+type RedisOption func(s *RedisManger)
+
+func WithPassAndURL(pass,urlstr string) RedisOption  {
+	return func(s *RedisManger) {
+		s.pass=pass
+		s.urlstr =urlstr
 	}
+}
+
+func NewRedis(ops ...RedisOption) RedisIF {
+	redismanger=new(RedisManger)
+	for _,op:=range ops{
+		op(redismanger)
+	}
+	if len(redismanger.urlstr) == 0{
+		redismanger.urlstr ="127.0.0.1:6379"
+	}
+	var dialOPS  []redis.DialOption
+
+	if len(redismanger.pass) !=0 {
+		opspass:=redis.DialPassword(redismanger.pass)
+		dialOPS=append(dialOPS,opspass)
+	}
+	opstimeout:=redis.DialConnectTimeout(time.Second*30)
+	dialOPS=append(dialOPS,opstimeout)
+
 	redisonce.Do(func() {
 		pool := &redis.Pool{
 			MaxIdle:     10,
 			MaxActive:   20000,
 			IdleTimeout: 10 * time.Second,
 			Dial: func() (redis.Conn, error) {
-				return redis.Dial("tcp", url,redis.DialConnectTimeout(time.Second*30))
+				return redis.Dial("tcp", redismanger.url,dialOPS...)
 			},
 		}
-		redismanger=new(RedisManger)
+
 		redismanger.pool=pool
 		conn := pool.Get()
 		defer conn.Close()
@@ -64,7 +91,7 @@ func NewRedis(url string) RedisIF {
 	return redismanger
 }
 //string操作 expireTime 过期时间 0表示不过期
-func (r *RedisManger) SetV(k,v string,expireTime int,db...int)(er error) {
+func (r *RedisManger) SetV(k,v string,expireTime int)(er error) {
 	conn := r.pool.Get()
 	defer conn.Close()
 	if expireTime == 0 {
@@ -132,5 +159,27 @@ func (r *RedisManger)B_L_R_POP(command,k string,idleTime int,exit <-chan int,res
 	}()
 	//退出的标志
 	<-exit
+}
+
+func getValue(a ...int)(expire,db int)  {
+	if len(a) == 0{
+		expire=0
+		db=0
+	}
+	if len(a) == 1 {
+		expire=a[0]
+		db=0
+	}
+	if len(a) ==2 {
+		expire =a[0]
+		db=a[1]
+	}
+	if expire <0 {
+		expire=0
+	}
+	if db<0 || db>15 {
+		db=0
+	}
+	return
 }
 

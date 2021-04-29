@@ -8,6 +8,7 @@ import (
 
 func TestNewRedis(t *testing.T) {
      //testBPOP()
+	fmt.Print(getValue(-9,15))
 }
 
 func testBPOP()  {
