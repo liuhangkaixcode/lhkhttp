@@ -18,7 +18,9 @@ type RedisIF interface {
 	GetV(k string)(string,error)
 	//expire 过期时间 0表示不过期  db选择数据0-15 默认值是0
 	SetEV(k,v string,expire,db int)(er error)
-	GetEV(k string,db int)(string error)
+	GetEV(k string,db int)(string,error)
+	//通用操作方法
+	CommonHandle(f func(conn redis.Conn))
 
 	//list 入栈操作操作 command (RPUSH,LPUSH)  v 第一个是key 后面依次是value
 	LorRPUSH(command string,v...interface{})error
@@ -42,7 +44,7 @@ type RedisManger struct {
 
 type RedisOption func(s *RedisManger)
 
-func WithPassAndURL(pass,urlstr string) RedisOption  {
+func WithPassAndURL(urlstr,pass string) RedisOption  {
 	return func(s *RedisManger) {
 		s.pass=pass
 		s.urlstr =urlstr
@@ -72,7 +74,7 @@ func NewRedis(ops ...RedisOption) RedisIF {
 			MaxActive:   20000,
 			IdleTimeout: 10 * time.Second,
 			Dial: func() (redis.Conn, error) {
-				return redis.Dial("tcp", redismanger.url,dialOPS...)
+				return redis.Dial("tcp", redismanger.urlstr,dialOPS...)
 			},
 		}
 
@@ -91,27 +93,43 @@ func NewRedis(ops ...RedisOption) RedisIF {
 	return redismanger
 }
 //string操作 expireTime 过期时间 0表示不过期
-func (r *RedisManger) SetV(k,v string,expireTime int)(er error) {
+func (r *RedisManger) SetV(k,v string)(er error) {
 	conn := r.pool.Get()
 	defer conn.Close()
-	if expireTime == 0 {
-		_, er= conn.Do("SET", k, v)
-	}else{
-		_,er=conn.Do("SETEX", k, expireTime,v)
-	}
+	_, er= conn.Do("SET", k, v)
 	return
 }
-func (r *RedisManger)Select(db int) error{
-	conn := r.pool.Get()
-	defer conn.Close()
-	_, err := conn.Do("SELECT", db)
-	return err
-}
+
 func (r *RedisManger)GetV(k string)(string,error){
 	conn := r.pool.Get()
 	defer conn.Close()
 	s, err := redis.String(conn.Do("get", k))
 	return s,err
+}
+func (r *RedisManger)SetEV(k,v string,expire,db int)(er error){
+	conn := r.pool.Get()
+	defer conn.Close()
+	er = selectdb(conn, db)
+	if er!=nil{
+		return
+	}
+	if expire ==0 {
+		_, er= conn.Do("SET", k, v)
+		return
+	}
+	_,er=conn.Do("SETEX", k, expire,v)
+	return
+}
+func (r *RedisManger)GetEV(k string,db int)(string, error){
+	conn := r.pool.Get()
+	defer conn.Close()
+	er := selectdb(conn, db)
+	if er!=nil{
+		return "",er
+	}
+	s, er := redis.String(conn.Do("get", k))
+	return s,er
+
 }
 func (r *RedisManger)LorRPUSH(command string,v...interface{})error{
 	conn := r.pool.Get()
@@ -161,25 +179,22 @@ func (r *RedisManger)B_L_R_POP(command,k string,idleTime int,exit <-chan int,res
 	<-exit
 }
 
-func getValue(a ...int)(expire,db int)  {
-	if len(a) == 0{
-		expire=0
-		db=0
+func selectdb(conn redis.Conn,db int) error{
+	if db>0 {
+		_, err := conn.Do("SELECT", db)
+		return err
 	}
-	if len(a) == 1 {
-		expire=a[0]
-		db=0
-	}
-	if len(a) ==2 {
-		expire =a[0]
-		db=a[1]
-	}
-	if expire <0 {
-		expire=0
-	}
-	if db<0 || db>15 {
-		db=0
-	}
-	return
+	return nil
+
 }
+
+func (r *RedisManger)CommonHandle(f func(conn redis.Conn))  {
+	conn := r.pool.Get()
+	defer func() {
+		conn.Close()
+		fmt.Println("-------------isending")
+	}()
+	f(conn)
+}
+
 

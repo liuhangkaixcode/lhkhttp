@@ -2,18 +2,25 @@ package lhkhttp
 
 import (
 	"fmt"
+	"github.com/garyburd/redigo/redis"
 	"testing"
 	"time"
 )
 
 func TestNewRedis(t *testing.T) {
      //testBPOP()
-	fmt.Print(getValue(-9,15))
+	redis1 := NewRedis(WithPassAndURL("14.116.147.19:8787","aa123456"))
+	//fmt.Println(redis.SetV("yy-yy","liuhangkai"))
+	//fmt.Println(redis.SetEV("kk-kk-1","vvv-vv",89,12))
+	redis1.CommonHandle(func(conn redis.Conn) {
+
+	})
+
 }
 
 func testBPOP()  {
 	defer fmt.Println("=====testBPOP已经退出了")
-	redis := NewRedis("")
+	redis := NewRedis(WithPassAndURL("127.0.0.1:8787","aa123456"))
 	exit:=make(chan int)
 	res:=make(chan string)
 	var stopflag = 0
