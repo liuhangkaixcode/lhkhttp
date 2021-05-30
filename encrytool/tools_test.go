@@ -7,6 +7,7 @@ import (
 )
 
 //测试 aes ecb
+//http://tool.chacuo.net/cryptdes
 func TestAesEncrypt(t *testing.T) {
 	//加密
 	jsonstr:=`{"w":"w xx w "}`

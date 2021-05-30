@@ -20,9 +20,9 @@ func TestQueStr(t *testing.T)  {
 //普通get请求
 func TestGet(t *testing.T) {
 	 //第一种方式
-	urlstring:="http://ip:8787/get1?type=get&name=玩笑&score=刘寒假"
+	urlstring:="http://www.baidu.com"
 	fmt.Println(urlstring)
-	c:= NewClient()
+	c:= NewClient(WithTimeOut(60))
 	s, e :=c.Get(urlstring)
 	fmt.Print(s,e)
 
