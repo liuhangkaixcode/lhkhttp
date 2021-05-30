@@ -1,4 +1,4 @@
-package lhkhttp
+package redistool
 
 import (
 	"fmt"
@@ -44,7 +44,7 @@ type RedisManger struct {
 
 type RedisOption func(s *RedisManger)
 
-func WithPassAndURL(urlstr,pass string) RedisOption  {
+func WithPassAndURL(urlstr,pass string) RedisOption {
 	return func(s *RedisManger) {
 		s.pass=pass
 		s.urlstr =urlstr
@@ -52,7 +52,7 @@ func WithPassAndURL(urlstr,pass string) RedisOption  {
 }
 
 func NewRedis(ops ...RedisOption) RedisIF {
-	redismanger=new(RedisManger)
+	redismanger =new(RedisManger)
 	for _,op:=range ops{
 		op(redismanger)
 	}

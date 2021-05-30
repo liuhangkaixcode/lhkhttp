@@ -1,4 +1,4 @@
-package tools
+package errortool
 
 import (
 	"encoding/json"

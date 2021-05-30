@@ -1,4 +1,4 @@
-package lhkhttp
+package redistool
 
 import (
 	"fmt"

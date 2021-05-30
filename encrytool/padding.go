@@ -1,4 +1,4 @@
-package lhkhttp
+package encrytool
 
 import (
 	"bytes"

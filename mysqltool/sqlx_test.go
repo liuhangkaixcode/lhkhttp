@@ -1,4 +1,4 @@
-package lhkhttp
+package mysqltool
 
 import (
 	"database/sql"
@@ -34,7 +34,7 @@ var(
 
 )
 
-func (x Stu) MarshalJSON() ([]byte, error) {//解决sql.numString
+func (x Stu) MarshalJSON() ([]byte, error) { //解决sql.numString
 	//这里进行操作
 	return []byte("{\"one\":\"two\"}"),nil
 }

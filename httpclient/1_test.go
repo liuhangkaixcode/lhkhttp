@@ -1,7 +1,6 @@
-package lhkhttp
+package httpclient
 
 import (
-	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"testing"
@@ -15,7 +14,7 @@ func TestQueStr(t *testing.T)  {
 	t1["time"]="2012-12"
 	fmt.Println(getQueryStr(t1))
 	fmt.Println(getQueryStr(map[string]interface{}{}))
-	fmt.Println(getQueryStr(map[string]interface{}{"x":"y"}))
+	fmt.Println(getQueryStr(map[string]interface{}{"x": "y"}))
 }
 
 //普通get请求
@@ -23,7 +22,7 @@ func TestGet(t *testing.T) {
 	 //第一种方式
 	urlstring:="http://ip:8787/get1?type=get&name=玩笑&score=刘寒假"
 	fmt.Println(urlstring)
-	c:=NewClient()
+	c:= NewClient()
 	s, e :=c.Get(urlstring)
 	fmt.Print(s,e)
 
@@ -57,14 +56,14 @@ func TestPost(t *testing.T) {
 	//fmt.Println(res,err)
 
     //第二种
-	c:=NewClient(WithTimeOut(16),WithHost("http://ip:8787"))
+	c:= NewClient(WithTimeOut(16), WithHost("http://ip:8787"))
 	res, err := c.Post("/post3", nil, nil)
 	fmt.Println(res,err)
 }
 //
 //post请求是 body提 （application/json）
 func TestPostBody(t *testing.T) {
-	c:=NewClient(WithTimeOut(17),WithHost("http://ip:8787"))
+	c:= NewClient(WithTimeOut(17), WithHost("http://ip:8787"))
 	datas:=map[string]interface{}{
 		"name":"李四",
 		"wangwu":"zhangsan",
@@ -109,25 +108,4 @@ func TestChangeToQueryUrl(t *testing.T) {
 	fmt.Println(MapChangeToQueryUrl(url,data))
 }
 
-//测试 aes ecb
-func TestAesEncrypt(t *testing.T) {
-	//加密
-	jsonstr:=`{"w":"w xx w "}`
-	src := []byte(jsonstr) //原明文
-	// AES-128-ECB, PKCS7_PADDING 输出base64 utf-8编码
-	key := []byte("a$efkghm@hkybu#%") //16位密码
-	dst, _ := AesECBEncrypt(src, key, PKCS7_PADDING)
-	str:=base64.StdEncoding.EncodeToString(dst)
-	fmt.Println(str)
-	//解密
-	src, _ = base64.StdEncoding.DecodeString(str)
-	dst, _ = AesECBDecrypt(src, key, PKCS7_PADDING)
-	fmt.Println(string(dst))
-}
-
-func TestMd5(t *testing.T) {
-	//fmt.Println(Md5Str("kaishao")) //32位小写
-	//fmt.Println(Sha1ToStr("kaishao"))
-
-}
 

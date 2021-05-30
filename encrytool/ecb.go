@@ -1,6 +1,8 @@
-package lhkhttp
+package encrytool
 
-import "crypto/cipher"
+import (
+	"crypto/cipher"
+)
 
 func ECBEncrypt(block cipher.Block, src []byte, padding string) ([]byte, error) {
 	blockSize := block.BlockSize()

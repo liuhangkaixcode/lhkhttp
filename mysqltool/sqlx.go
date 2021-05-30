@@ -1,4 +1,4 @@
-package lhkhttp
+package mysqltool
 
 import (
 	"database/sql"
@@ -59,7 +59,7 @@ func (s *SqlManger)SelectMap(sqlStr string)([]map[string]interface{},error)  {
 	}
 	return result,nil
 }
-func NewMysql(dns string)  SqlIF{
+func NewMysql(dns string) SqlIF {
 
 	once.Do(func() {
 		if len(dns)==0 {
@@ -72,7 +72,7 @@ func NewMysql(dns string)  SqlIF{
 		}else{
 			fmt.Println("mysql正常启动")
 		}
-		sqlmanger= new(SqlManger)
+		sqlmanger = new(SqlManger)
 		sqlmanger.database=database
 
 	})

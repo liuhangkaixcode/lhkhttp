@@ -1,4 +1,4 @@
-module github.com/liuhangkaixcode/lhkhttp
+module github.com/liuhangkaixcode/lhktools
 
 go 1.15
 

@@ -1,4 +1,4 @@
-package lhkhttp
+package httpclient
 
 import (
 	"bytes"
@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"net/url"
 	"time"
 )
 
@@ -27,20 +28,20 @@ type ClientReq struct {
 
 type OpFunc  func(c *ClientReq)
 //设置超时时间
-func WithTimeOut(t int64) OpFunc  {
+func WithTimeOut(t int64) OpFunc {
 	return func(c *ClientReq) {
 		c.timeOut=time.Duration(t)*time.Second
 	}
 }
 //请求服务器的域名公众设置 http://www.baidu.com
-func WithHost(host string)OpFunc  {
+func WithHost(host string) OpFunc {
 	return func(c *ClientReq) {
 		c.host=host
 	}
 }
 
 //初始化
-func NewClient(ops...OpFunc) *ClientReq{
+func NewClient(ops...OpFunc) *ClientReq {
 	client:=  &ClientReq{
 				data:make(map[string]interface{}),
 				headers:make(map[string]interface{})}
@@ -55,7 +56,7 @@ func NewClient(ops...OpFunc) *ClientReq{
 suburl 请求url的子地址或者全地址
 */
 func (c *ClientReq)Get(suburl string)(string, error)  {
-	c.method=method_GET
+	c.method= method_GET
 	c.suburl=suburl
 	c.data=nil
 	c.headers=nil
@@ -68,7 +69,7 @@ data    上送参数
 headers 请求头
 */
 func (c *ClientReq)Post(suburl string,data,headers map[string]interface{} )( string, error)   {
-	c.method=method_POST
+	c.method= method_POST
 	c.isRequstbody=false
 	c.suburl=suburl
 	c.data=data
@@ -81,7 +82,7 @@ data    上送参数
 headers 请求头
 */
 func (c *ClientReq)PostForBody(suburl string,data,headers map[string]interface{})(string,error)  {
-	c.method=method_POST
+	c.method= method_POST
 	c.isRequstbody=true
 	c.suburl=suburl
 	c.data=data
@@ -160,3 +161,28 @@ func getQueryStr(datas map[string]interface{}) string  {
 
 }
 
+func MapChangeToQueryUrl(urlstring string,data map[string]interface{}) (string,error){
+
+	if data == nil || len(data) ==0  || len(urlstring) ==0{
+		return urlstring,fmt.Errorf("url或者data为空")
+	}
+	urlstring=urlstring+"?"
+	for k,v:=range data{
+		urlstring+=fmt.Sprintf("%v=%v&",k,v)
+	}
+
+	urlstring=urlstring[0:len(urlstring)-1]
+	return urlstring,nil
+
+}
+
+func URLencode(str string) string {
+	return url.QueryEscape(str)
+	//url.QueryUnescape("")
+	//v := url.Values{}
+	//v.Encode()
+
+}
+func URLDecode(str string)(string ,error) {
+	return url.QueryUnescape(str)
+}
