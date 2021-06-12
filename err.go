@@ -1,4 +1,4 @@
-package errortool
+package lhktools
 
 import (
 	"encoding/json"
@@ -6,7 +6,7 @@ import (
 )
 
 const (
-	Code_Unknow="CODE4000"
+	Code_Unknow="LHK4000"
 
 )
 const (
@@ -21,10 +21,10 @@ type ErrMgr struct {
 
 func (e *ErrMgr)Error() string {
 	if len(e.Code) ==0 {
-		e.Code=Code_Unknow
+		e.Code= Code_Unknow
 	}
 	if len(e.Msg) ==0 {
-		e.Msg=Msg_ParamError
+		e.Msg= Msg_ParamError
 	}
 	marshal, _ := json.Marshal(map[string]string{"code":e.Code,"msg":e.Msg})
 	return string(marshal)
@@ -38,12 +38,10 @@ func NewError(code,msg string) error {
 }
 
 func GetErrInfo(err error) (code,msg string){
-
 	return errInfo(err)
-
 }
 func GetErrMap(err error) (map[string]string){
-	code,msg:=errInfo(err)
+	code,msg:= errInfo(err)
 	return map[string]string{"code":code,"msg":msg}
 }
 
@@ -67,7 +65,7 @@ func errInfo(err error) (code,msg string)  {
 		return m["code"],m["msg"]
 	}
 
-	return Code_Unknow,Msg_ParamError
+	return Code_Unknow, Msg_ParamError
 }
 
 func HasErr(e error) bool {

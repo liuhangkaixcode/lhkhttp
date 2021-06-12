@@ -1,4 +1,4 @@
-package httpclient
+package lhktools
 
 import (
 	"encoding/json"
@@ -19,30 +19,30 @@ func TestQueStr(t *testing.T)  {
 
 //普通get请求
 func TestGet(t *testing.T) {
-	 //第一种方式
+	//第一种方式
 	urlstring:="http://www.baidu.com"
 	fmt.Println(urlstring)
-	c:= NewClient(WithTimeOut(60))
+	c:= NewHttpClient(WithTimeOut(60))
 	s, e :=c.Get(urlstring)
 	fmt.Print(s,e)
 
-    //第二种方式
+	//第二种方式
 	/*
-	c:=NewClient(WithHost("http://ip:8787"),WithTimeOut(15))
-	data:=make(map[string]interface{})
-	data["type"]="get"
-	data["name"]="张三"
-	data["score"]=140.2
-	urlstring, err := MapChangeToQueryUrl("/get1", data)
-	fmt.Println(urlstring,err)
-	result, err := c.Get(urlstring)
-	fmt.Println(result,err)
-  */
+		c:=NewHttpClient(WithHost("http://ip:8787"),WithTimeOut(15))
+		data:=make(map[string]interface{})
+		data["type"]="get"
+		data["name"]="张三"
+		data["score"]=140.2
+		urlstring, err := MapChangeToQueryUrl("/get1", data)
+		fmt.Println(urlstring,err)
+		result, err := c.Get(urlstring)
+		fmt.Println(result,err)
+	*/
 }
 //普通的POST 表单提交请求（application/x-www-form-urlencoded）
 func TestPost(t *testing.T) {
 	//第一种
-	//c:=NewClient(WithTimeOut(16),WithHost("http://ip:8787"))
+	//c:=NewHttpClient(WithTimeOut(16),WithHost("http://ip:8787"))
 	//datas:=map[string]interface{}{
 	//	"name":"李四",
 	//	"wangwu":"zhangsan",
@@ -55,15 +55,15 @@ func TestPost(t *testing.T) {
 	//res, err := c.Post("/post1", datas, headers)
 	//fmt.Println(res,err)
 
-    //第二种
-	c:= NewClient(WithTimeOut(16), WithHost("http://ip:8787"))
+	//第二种
+	c:= NewHttpClient(WithTimeOut(16), WithHost("http://ip:8787"))
 	res, err := c.Post("/post3", nil, nil)
 	fmt.Println(res,err)
 }
 //
 //post请求是 body提 （application/json）
 func TestPostBody(t *testing.T) {
-	c:= NewClient(WithTimeOut(17), WithHost("http://ip:8787"))
+	c:= NewHttpClient(WithTimeOut(17), WithHost("http://ip:8787"))
 	datas:=map[string]interface{}{
 		"name":"李四",
 		"wangwu":"zhangsan",
@@ -84,9 +84,9 @@ func TestPostBody(t *testing.T) {
 //RPCX框架 service http请求
 func TestRpcXGateway(t *testing.T)  {
 	//废弃方法
-	//c:=NewClient(WithTimeOut(5))
+	//c:=NewHttpClient(WithTimeOut(5))
 	//c.Url="http://ip:8972"
-   ////请求体
+	////请求体
 	//c.Headers["Content-Type"]="application/rpcx"
 	//c.Headers["X-RPCX-SerializeType"]=1
 	//c.Headers["X-RPCX-ServicePath"]="service_name_01"
@@ -107,5 +107,4 @@ func TestChangeToQueryUrl(t *testing.T) {
 	data["niu"]="张三"
 	fmt.Println(MapChangeToQueryUrl(url,data))
 }
-
 

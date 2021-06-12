@@ -1,4 +1,4 @@
-package mysqltool
+package lhktools
 
 import (
 	"database/sql"
@@ -16,23 +16,23 @@ type SqlIF interface {
 	//获取数据实例
 	//GetDBInstance() *sqlx.DB
 	//关闭
-    Close()
-    //单行数据 sqlstr sql查询语句  obj 结构体对象  args查询语句可选参数
-    Get(sqlStr string,obj interface{},args...interface{})(error)
-    //多行
-    Select(sqlStr string,objs interface{},args...interface{})(error)
-    //返回多行map
-    SelectMap(sqlStr string)([]map[string]interface{},error)
-    //insert
-    Insert(sqlStr string,args...interface{})(insertId int64,err error)
-    //updateOrDelete
+	Close()
+	//单行数据 sqlstr sql查询语句  obj 结构体对象  args查询语句可选参数
+	Get(sqlStr string,obj interface{},args...interface{})(error)
+	//多行
+	Select(sqlStr string,objs interface{},args...interface{})(error)
+	//返回多行map
+	SelectMap(sqlStr string)([]map[string]interface{},error)
+	//insert
+	Insert(sqlStr string,args...interface{})(insertId int64,err error)
+	//updateOrDelete
 	UpdateOrDelete(sqlStr string,args...interface{})(rowsAffect int64,err error)
-    //事务操作
-    BeginHandle(f func(tx *sql.Tx,err error) error)
-    //事务查询
-    BeginQuery(tx *sql.Tx,sqlStr string,args...interface{})error
-    //事务写操作
-    BeginExec(tx *sql.Tx,sqlStr string,args...interface{})error
+	//事务操作
+	BeginHandle(f func(tx *sql.Tx,err error) error)
+	//事务查询
+	BeginQuery(tx *sql.Tx,sqlStr string,args...interface{})error
+	//事务写操作
+	BeginExec(tx *sql.Tx,sqlStr string,args...interface{})error
 
 
 }
@@ -41,7 +41,7 @@ type SqlManger struct {
 }
 
 func (s *SqlManger)Get(sqlstr string,obj interface{},args...interface{}) (error) {
-   return s.database.Get(obj,sqlstr,args...)
+	return s.database.Get(obj,sqlstr,args...)
 }
 func (s *SqlManger)Select(sqlstr string,objs interface{},args...interface{}) (error) {
 	return  s.database.Select(objs,sqlstr,args...)
@@ -77,7 +77,7 @@ func NewMysql(dns string) SqlIF {
 
 	})
 
-   return sqlmanger
+	return sqlmanger
 }
 
 func (s *SqlManger)Insert(sqlStr string,args...interface{})(insertId int64,err error){

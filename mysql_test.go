@@ -1,4 +1,4 @@
-package mysqltool
+package lhktools
 
 import (
 	"database/sql"
@@ -28,9 +28,9 @@ type Stu struct {
 
 //数据库
 var(
-	//test?charset=utf8&timeout=10s&readTimeout=30s&writeTimeOut=30s
-	//dns1 = "root:123456@tcp(14.16.17.19:8787)/skill?timeout=10s&readTimeout=12s"
-  //sqlstrucet = NewMysql(dns1)
+//test?charset=utf8&timeout=10s&readTimeout=30s&writeTimeOut=30s
+//dns1 = "root:123456@tcp(14.16.17.19:8787)/skill?timeout=10s&readTimeout=12s"
+//sqlstrucet = NewMysql(dns1)
 
 )
 
@@ -42,7 +42,7 @@ func (x Stu) MarshalJSON() ([]byte, error) { //解决sql.numString
 //查询
 func TestInitMySql(t *testing.T) {
 
-    // defer  sqlstrucet.Close()  //销毁连接
+	// defer  sqlstrucet.Close()  //销毁连接
 	//单行
 	//signlesqlstr:=fmt.Sprintf("select id,name from stu where id='%d'",30)
 	//var stu Stu
@@ -143,7 +143,7 @@ func TestSqlManger_Insert(t *testing.T) {
 	//fmt.Println(sqlstrucet.Insert(sqlstr))
 	//fmt.Println(sqlstrucet.Insert("insert into stu(name,total)values(?,?)","xxxjjj",10))
 
-    //更新
+	//更新
 	//sqlstr:=fmt.Sprintf("update stu set name='%s' where id<'%d'","更新刘航军名字1",3)
 	//fmt.Println(sqlstrucet.UpdateOrDelete(sqlstr))
 	//fmt.Println(sqlstrucet.UpdateOrDelete("update stu set name=? where id<?","zhangsan",3))
@@ -154,7 +154,7 @@ func TestSqlManger_Insert(t *testing.T) {
 	//fmt.Println(sqlstrucet.UpdateOrDelete("delete from stu where id=?",3))
 
 
-    //事务操作 innodb
+	//事务操作 innodb
 	//sqlstrucet.BeginHandle(func(tx *sql.Tx,er error) error {
 	//	if er!=nil{
 	//		return fmt.Errorf("开启事务失败")

@@ -1,4 +1,4 @@
-package redistool
+package lhktools
 
 import (
 	"fmt"

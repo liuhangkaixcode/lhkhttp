@@ -1,8 +1,9 @@
-package encrytool
+package lhktools
 
 import (
 	"encoding/base64"
 	"fmt"
+	"github.com/liuhangkaixcode/lhktools/encrytool"
 	"testing"
 )
 
@@ -14,12 +15,12 @@ func TestAesEncrypt(t *testing.T) {
 	src := []byte(jsonstr) //原明文
 	// AES-128-ECB, PKCS7_PADDING 输出base64 utf-8编码
 	key := []byte("a$efkghm@hkybu#%") //16位密码
-	dst, _ := AesECBEncrypt(src, key, PKCS7_PADDING)
+	dst, _ := AesECBEncrypt(src, key, encrytool.PKCS7_PADDING)
 	str:=base64.StdEncoding.EncodeToString(dst)
 	fmt.Println(str)
 	//解密
 	src, _ = base64.StdEncoding.DecodeString(str)
-	dst, _ = AesECBDecrypt(src, key, PKCS7_PADDING)
+	dst, _ = AesECBDecrypt(src, key, encrytool.PKCS7_PADDING)
 	fmt.Println(string(dst))
 }
 
@@ -28,4 +29,3 @@ func TestMd5(t *testing.T) {
 	fmt.Println(Sha1ToStr("kaishao"))
 
 }
-

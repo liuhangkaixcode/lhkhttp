@@ -1,4 +1,4 @@
-package errortool
+package lhktools
 
 import (
 	"fmt"

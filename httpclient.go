@@ -1,4 +1,4 @@
-package httpclient
+package lhktools
 
 import (
 	"bytes"
@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
-	"net/url"
 	"time"
 )
 
@@ -17,13 +16,13 @@ var(
 	method_DELETE="DELETE"
 )
 type ClientReq struct {
-	 timeOut  time.Duration //默认50秒的超时时间
-	 method string           //请求方式
-	 data map[string]interface{}     //请求数据体
-	 headers map[string]interface{}  //header数据
-	 suburl string         //请求url
-	 isRequstbody bool  //是否是requestBody请求
-	 host string   //请求服务器的域名地址 http://www.baidu.com
+	timeOut  time.Duration //默认50秒的超时时间
+	method string           //请求方式
+	data map[string]interface{}     //请求数据体
+	headers map[string]interface{}  //header数据
+	suburl string         //请求url
+	isRequstbody bool  //是否是requestBody请求
+	host string   //请求服务器的域名地址 http://www.baidu.com
 }
 
 type OpFunc  func(c *ClientReq)
@@ -41,14 +40,14 @@ func WithHost(host string) OpFunc {
 }
 
 //初始化
-func NewClient(ops...OpFunc) *ClientReq {
+func NewHttpClient(ops...OpFunc) *ClientReq {
 	client:=  &ClientReq{
-				data:make(map[string]interface{}),
-				headers:make(map[string]interface{})}
-				client.timeOut=50*time.Second
-				for _,op:=range ops{
-				op(client)
-		        }
+		data:make(map[string]interface{}),
+		headers:make(map[string]interface{})}
+	client.timeOut=50*time.Second
+	for _,op:=range ops{
+		op(client)
+	}
 	return client
 }
 
@@ -61,7 +60,7 @@ func (c *ClientReq)Get(suburl string)(string, error)  {
 	c.data=nil
 	c.headers=nil
 	c.isRequstbody=false
-    return c.request()
+	return c.request()
 }
 /**
 suburl  请求url的子地址或者全地址
@@ -91,14 +90,14 @@ func (c *ClientReq)PostForBody(suburl string,data,headers map[string]interface{}
 }
 
 func (c *ClientReq)request()( string, error) {
-    //构建request请求
+	//构建request请求
 	if len(c.suburl) == 0 {
 		return "",fmt.Errorf("suburl没有传")
 	}
 	if len(c.host) !=0 {
 		c.suburl=c.host+c.suburl
 	}
-	 var body *bytes.Reader
+	var body *bytes.Reader
 	body=new(bytes.Reader)
 	if c.isRequstbody {
 		if len(c.data)>0 {
@@ -128,20 +127,20 @@ func (c *ClientReq)request()( string, error) {
 	}
 
 
-		client:=&http.Client{}
-		fmt.Println("超时时间",c.timeOut)
-		client.Timeout=c.timeOut
-		response, e := client.Do(req)
-		if e!=nil {
-			return  "",e
-		}
-		defer response.Body.Close()
+	client:=&http.Client{}
+	fmt.Println("超时时间",c.timeOut)
+	client.Timeout=c.timeOut
+	response, e := client.Do(req)
+	if e!=nil {
+		return  "",e
+	}
+	defer response.Body.Close()
 
-		bytes, e := ioutil.ReadAll(response.Body)
-		if e != nil {
-			return "", e
-		}
-		return string(bytes),nil
+	bytes, e := ioutil.ReadAll(response.Body)
+	if e != nil {
+		return "", e
+	}
+	return string(bytes),nil
 
 
 }
@@ -176,13 +175,3 @@ func MapChangeToQueryUrl(urlstring string,data map[string]interface{}) (string,e
 
 }
 
-func URLencode(str string) string {
-	return url.QueryEscape(str)
-	//url.QueryUnescape("")
-	//v := url.Values{}
-	//v.Encode()
-
-}
-func URLDecode(str string)(string ,error) {
-	return url.QueryUnescape(str)
-}

@@ -1,10 +1,12 @@
-package encrytool
+package lhktools
+
 
 import (
 	"crypto/aes"
 	"crypto/md5"
 	"crypto/sha1"
 	"encoding/hex"
+	"github.com/liuhangkaixcode/lhktools/encrytool"
 )
 
 
@@ -20,7 +22,7 @@ func AesECBEncrypt(src, key []byte, padding string) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	return ECBEncrypt(block, src, padding)
+	return  encrytool.ECBEncrypt(block, src, padding)
 }
 
 // AesECBDecrypt
@@ -29,7 +31,7 @@ func AesECBDecrypt(src, key []byte, padding string) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	return ECBDecrypt(block, src, padding)
+	return encrytool.ECBDecrypt(block, src, padding)
 }
 
 // Md5 Calculate the md5 hash of a string
@@ -52,4 +54,5 @@ func Sha1ToStr(str string) string {
 
 //RSA  https://www.cnblogs.com/zhichaoma/p/12516715.html
 //RSA2  http://www.manongjc.com/detail/16-vxioingzzhrekpa.html
+
 

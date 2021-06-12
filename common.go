@@ -1,7 +1,8 @@
-package common
+package lhktools
 
 import (
 	"github.com/google/uuid"
+	"net/url"
 	"time"
 )
 
@@ -15,11 +16,6 @@ var (
 	sn            int64 // 序列号占 12 位,十进制范围是 [ 0, 4095 ]
 	lastTimeStamp int64 // 上次的时间戳(毫秒级), 1秒=1000毫秒, 1毫秒=1000微秒,1微秒=1000纳秒
 )
-
-func SetMachineId(mid int64) {
-	// 把机器 id 左移 12 位,让出 12 位空间给序列号使用
-	machineID = mid << 12
-}
 
 func GetSnowflakeId() int64 {
 	lastTimeStamp = time.Now().UnixNano() / 1000000
@@ -65,3 +61,15 @@ func GetSnowflakeId() int64 {
 
 	return 0
 }
+
+func URLencode(str string) string {
+	return url.QueryEscape(str)
+	//url.QueryUnescape("")
+	//v := url.Values{}
+	//v.Encode()
+
+}
+func URLDecode(str string)(string ,error) {
+	return url.QueryUnescape(str)
+}
+
