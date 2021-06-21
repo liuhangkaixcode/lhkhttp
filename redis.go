@@ -29,7 +29,7 @@ type RedisIF interface {
 	
 	//获取过期时间
 	//阻塞式的获取队列 BLPOP BRPOP
-	B_L_R_POP(command,k string,idleTime int,stop <-chan int,res chan <-string)
+	B_L_R_POP(command,k string,idleTime int,exit chan int) (res chan string)
 
 
 
@@ -152,36 +152,49 @@ func (r *RedisManger)LorRPOP(command,k string)(string ,error){
 	return res1,nil
 
 }
-func (r *RedisManger)B_L_R_POP(command,k string,idleTime int,exit <-chan int,res chan <-string)  {
+func (r *RedisManger)B_L_R_POP(command,k string,idleTime int,exit chan int) (res chan string) {
 	conn := r.pool.Get()
 	defer func() {
-		conn.Close()
 		fmt.Println("B_L_R_POP方法已经退出了")
 	}()
+	res=make(chan string,100)
 	if idleTime == 0{
 		idleTime =10
 	}
-	go func() {
+	go func(conn redis.Conn,exit chan int) {
 		for{
-			s, e := redis.Values(conn.Do(command, k, idleTime))
-			if e!=nil {
-				continue
-			}else{
-				for index,v:=range s{
-					if index ==0{
-						continue
-					}
-					if zhi,ok:=v.([]byte);ok {
-						fmt.Println("内部的值",string(zhi))
-						res<-string(zhi)
 
+			select {
+			case <-exit:
+				conn.Close()
+				fmt.Println("===conn已经退出了")
+				return
+			default:
+				{
+					s, e := redis.Values(conn.Do(command, k, idleTime))
+					if e!=nil {
+						continue
+					}else{
+						for index,v:=range s{
+							if index ==0{
+								continue
+							}
+							if zhi,ok:=v.([]byte);ok {
+								fmt.Println("内部的值",string(zhi))
+								res<-string(zhi)
+
+							}
+						}
 					}
 				}
+
 			}
+
+
 		}
-	}()
+	}(conn,exit)
 	//退出的标志
-	<-exit
+   return
 }
 
 func selectdb(conn redis.Conn,db int) error{
