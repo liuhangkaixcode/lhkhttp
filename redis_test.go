@@ -2,25 +2,18 @@ package lhktools
 
 import (
 	"fmt"
-	"github.com/garyburd/redigo/redis"
 	"testing"
 	"time"
 )
 
+//go test -v --race  -run="TestNewRedis"
 func TestNewRedis(t *testing.T) {
-     //testBPOP()
-	redis1 := NewRedis(WithPassAndURL("14.116.147.19:8787","aa123456"))
-	//fmt.Println(redis.SetV("yy-yy","liuhangkai"))
-	//fmt.Println(redis.SetEV("kk-kk-1","vvv-vv",89,12))
-	redis1.CommonHandle(func(conn redis.Conn) {
-
-	})
-
+	redis:= NewRedis("14.116.147.19:8787","liuhangkai*#920")
+	fmt.Println(redis.SetV("yy-yy","liuhangkai===>jier"))
 }
-
-func testBPOP()  {
+func TestBPOP(t *testing.T)  {
 	defer fmt.Println("=====testBPOP已经退出了")
-	redis := NewRedis(WithPassAndURL("127.0.0.1:8787","aa123456"))
+	redis := NewRedis("14.116.147.19:8787","liuhangkai*#920")
 	exit:=make(chan int)
 	res:=make(chan string)
 	var stopflag = 0

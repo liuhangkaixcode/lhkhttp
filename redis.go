@@ -3,13 +3,12 @@ package lhktools
 import (
 	"fmt"
 	"github.com/garyburd/redigo/redis"
-	"sync"
 	"time"
 )
 
 var (
 	redismanger  *RedisManger
-	redisonce sync.Once
+
 )
 type RedisIF interface {
 
@@ -38,58 +37,64 @@ type RedisIF interface {
 }
 type RedisManger struct {
 	pool *redis.Pool
-	pass  string
-	urlstr string
+	pwd  string
+	connAdress string
 }
 
 type RedisOption func(s *RedisManger)
 
-func WithPassAndURL(urlstr,pass string) RedisOption {
-	return func(s *RedisManger) {
-		s.pass=pass
-		s.urlstr =urlstr
-	}
-}
+//func WithPassAndURL(urlstr,pass string) RedisOption {
+//	return func(s *RedisManger) {
+//		s.pass=pass
+//		s.urlstr =urlstr
+//	}
+//
+//	for _,op:=range ops{
+//		op(redismanger)
+//	}
+//}
 
-func NewRedis(ops ...RedisOption) RedisIF {
+func NewRedis(connAdress,pwd string,f...func(pool interface{})) RedisIF {
 	redismanger =new(RedisManger)
-	for _,op:=range ops{
-		op(redismanger)
-	}
-	if len(redismanger.urlstr) == 0{
-		redismanger.urlstr ="127.0.0.1:6379"
+	redismanger.connAdress =connAdress
+	redismanger.pwd =pwd
+	if len(redismanger.connAdress) == 0{
+		redismanger.connAdress ="127.0.0.1:6379"
 	}
 	var dialOPS  []redis.DialOption
 
-	if len(redismanger.pass) !=0 {
-		opspass:=redis.DialPassword(redismanger.pass)
+	if len(redismanger.pwd) !=0 {
+		opspass:=redis.DialPassword(redismanger.pwd)
 		dialOPS=append(dialOPS,opspass)
 	}
 	opstimeout:=redis.DialConnectTimeout(time.Second*30)
 	dialOPS=append(dialOPS,opstimeout)
 
-	redisonce.Do(func() {
-		pool := &redis.Pool{
-			MaxIdle:     10,
-			MaxActive:   20000,
-			IdleTimeout: 10 * time.Second,
-			Dial: func() (redis.Conn, error) {
-				return redis.Dial("tcp", redismanger.urlstr,dialOPS...)
-			},
-		}
+	pool := &redis.Pool{
+		MaxIdle:     10,
+		MaxActive:   20000,
+		IdleTimeout: 10 * time.Second,
+		Dial: func() (redis.Conn, error) {
+			return redis.Dial("tcp", redismanger.connAdress,dialOPS...)
+		},
+	}
 
-		redismanger.pool=pool
-		conn := pool.Get()
-		defer conn.Close()
+	if len(f)>0{
+		f[0](pool)
+	}
+	fmt.Println("====>pool",pool)
+	redismanger.pool=pool
+	conn := pool.Get()
+	defer conn.Close()
 
-		_, err := conn.Do("ping")
-		if err != nil {
-			panic("redis server 未启动...\n")
-		}else{
-			fmt.Println("redis SUCCESS....")
-		}
+	_, err := conn.Do("ping")
+	if err != nil {
+		fmt.Println("===>error",err)
+		panic("redis server 未启动...\n")
+	}else{
+		fmt.Println("redis SUCCESS....")
+	}
 
-	})
 	return redismanger
 }
 //string操作 expireTime 过期时间 0表示不过期
