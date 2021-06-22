@@ -13,7 +13,8 @@ var (
 
 type SqlIF interface {
 	//获取数据实例
-	//GetDBInstance() *sqlx.DB
+	//允许自己扩充自己的通用操作方法sqlhandle *sqlx.DB
+	MysqlCommonHandle(f func(sqlhandle interface{}))
 	//关闭
 	Close()
 	//单行数据 sqlstr sql查询语句  obj 结构体对象  args查询语句可选参数
@@ -92,9 +93,9 @@ func (s *SqlManger) UpdateOrDelete(sqlStr string, args ...interface{}) (rowsAffe
 	return
 }
 
-//func (s *SqlManger)GetDBInstance() *sqlx.DB{
-//	return s.database
-//}
+func (s *SqlManger)MysqlCommonHandle(f func(sqlhandle interface{})){
+	f(s.database)
+}
 func (s *SqlManger) Close() {
 	if sqlmanger != nil {
 		sqlmanger.database.Close()

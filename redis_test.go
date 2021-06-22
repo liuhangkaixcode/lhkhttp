@@ -32,7 +32,7 @@ func TestRedisManger_HGET(t *testing.T) {
 	//red.HSET("person","age","10")
 	//red.HSET("person","height",172.12)
 	//fmt.Println(red.HGET("person","height1"))
-	//fmt.Println(red.HGETALL("person"))
+	fmt.Println(red.HGETALL("person"))
 	fmt.Println(red.EXISTS("person1"))
 }
 func TestBPOP(t *testing.T) {

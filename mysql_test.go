@@ -43,6 +43,12 @@ func (x Stu) MarshalJSON() ([]byte, error) { //解决sql.numString
 func TestInitMySql(t *testing.T) {
 
 	// defer  sqlstrucet.Close()  //销毁连接
+	//自定义
+	//sqlstrucet.MysqlCommonHandle(func(sqlhandle interface{}) {
+	//	if db,ok:=sqlhandle.(*sqlx.DB);ok{
+	//
+	//	}
+	//})
 	//单行
 	//signlesqlstr:=fmt.Sprintf("select id,name from stu where id='%d'",30)
 	//var stu Stu
