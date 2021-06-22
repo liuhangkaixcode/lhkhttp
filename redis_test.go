@@ -2,14 +2,38 @@ package lhktools
 
 import (
 	"fmt"
+	"github.com/garyburd/redigo/redis"
 	"testing"
 	"time"
 )
 
 //go test -v --race  -run="TestNewRedis"
 func TestNewRedis(t *testing.T) {
-	redis := NewRedis("14.116.147.19:8787", "liuhangkai*#920")
-	fmt.Println(redis.SetV("yy-yy", "liuhangkai==||||=>jier"))
+	//pool 允许重新设置值
+	redis := NewRedis("14.116.147.19:8787", "liuhangkai*#920", func(pool interface{}) {
+		if v,ok:=pool.(*redis.Pool);ok{
+			v.MaxIdle=100
+		}
+	})
+	fmt.Println(redis.SetV("yy-yy", "liuhangkai==||||=>jier"+time.Now().String()))
+}
+func TestRedisManger_RedisCommonHandle(t *testing.T) {
+	red := NewRedis("14.116.147.19:8787", "liuhangkai*#920")
+	red.RedisCommonHandle(func(connect interface{}) {
+		if conn,ok:=connect.(redis.Conn);ok{
+			fmt.Println(redis.Int64(conn.Do("EXISTS","yy4-yy")))
+		}
+	})
+}
+
+func TestRedisManger_HGET(t *testing.T) {
+	red := NewRedis("14.116.147.19:8787", "liuhangkai*#920")
+	//red.HSET("person","name","liuhangkai")
+	//red.HSET("person","age","10")
+	//red.HSET("person","height",172.12)
+	//fmt.Println(red.HGET("person","height1"))
+	//fmt.Println(red.HGETALL("person"))
+	fmt.Println(red.EXISTS("person1"))
 }
 func TestBPOP(t *testing.T) {
 	defer fmt.Println("=====testBPOP已经退出了")
@@ -31,5 +55,4 @@ func TestBPOP(t *testing.T) {
 			return
 		}
 	}
-
 }
