@@ -1,0 +1,5 @@
+package lhktools
+
+func Kafka()  {
+	
+}
